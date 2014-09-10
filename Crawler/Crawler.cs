@@ -14,20 +14,54 @@ namespace Crawler
         {
             MaxNumberOfBackQueues = 3;
             FrontQueues = new Queue<string>[numFrontQueues];
+            for (int i = 0; i < FrontQueues.Length; i++)
+            {
+                FrontQueues[i] = new Queue<string>();
+            }
             BackQueues = new Dictionary<string, Queue<string>>();
             DomainsVisited = new Dictionary<string, DateTime>();
+            Robots = new Dictionary<string, Tuple<DateTime, string[]>>();
+
+            VisitedURLS = new List<string>();
+        }
+
+        public int TotalVisits { get; set; }
+
+        public void CrawlTheWeb(IEnumerable<string> seed)
+        {
+            foreach (var item in seed)
+            {
+                AddURLToQueue(item);
+            }
+
+            foreach (var url in seed)
+            {
+
+                foreach (var link in ExtractLinksFromHTML(url))
+                {
+                    AddURLToQueue(link);
+                }
+            }
+
+
         }
 
         private int MaxNumberOfBackQueues { get; set; }
         private Queue<string>[] FrontQueues { get; set; }
         private Dictionary<string, Queue<string>> BackQueues { get; set; }
         private Dictionary<string, DateTime> DomainsVisited { get; set; }
+        private Dictionary<string, Tuple<DateTime, string[]>> Robots { get; set; }
+        private List<string> VisitedURLS { get; set; }
 
         public void AddURLToQueue(string url)
         {
             url = MakeURLPretty(url);
-            int q = new Random().Next(0, FrontQueues.Length);
-            FrontQueues[q].Enqueue(url);
+
+            if (!VisitedURLS.Contains(url))
+            {
+                int q = new Random().Next(0, FrontQueues.Length);
+                FrontQueues[q].Enqueue(url);
+            }
         }
 
         public string BackQueueSelector()
@@ -113,9 +147,26 @@ namespace Crawler
 
         public string DownloadHTML(string url)
         {
+            url = MakeURLPretty(url);
             WebClient web = new WebClient();
-            VisitDomain(url);
-            return web.DownloadString(url);
+            string dom = ExtractDomain(url);
+            if (!Robots.ContainsKey(dom))
+            {
+                string robot = web.DownloadString("http://" + dom + "/robots.txt");
+                Robots.Add(dom, new Tuple<DateTime, string[]>(DateTime.Now, robot.Split('\n')));
+                VisitDomain(url);
+            }
+
+            if (MayVisit(url))
+            {
+                VisitDomain(url);
+                VisitedURLS.Add(url);
+                return web.DownloadString(url);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public string MakeURLPretty(string url)
@@ -124,7 +175,7 @@ namespace Crawler
 
             if (lowURL.StartsWith("http://www"))
             {
-                return new Uri(url).ToString();
+                url = url;
             }
             else if (lowURL.StartsWith("http://"))
             {
@@ -135,8 +186,19 @@ namespace Crawler
             {
                 url = "http://" + url;
             }
+            else
+            {
+                url = "http://www." + url;
+            }
 
-            return new Uri(url).ToString();
+            url = new Uri(url).ToString();
+
+            if (url.EndsWith("/"))
+            {
+                url = url.Substring(0, url.Length - 1);
+            }
+
+            return url;
         }
 
         public string ExtractDomain(string url)
@@ -144,6 +206,44 @@ namespace Crawler
             url = MakeURLPretty(url);
             var splitter = url.Split(new char[] { '/' }, 3, StringSplitOptions.RemoveEmptyEntries);
             return splitter[1];
+        }
+
+        public IEnumerable<string> ExtractLinksFromHTML(string url)
+        {
+            var html = DownloadHTML(url);
+
+            if (html == null)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            var hrefs = html.Split(new string[] { "<a href=\"" }, StringSplitOptions.RemoveEmptyEntries).Skip(1);
+
+            List<string> urls = new List<string>();
+
+            foreach (var href in hrefs)
+            {
+                var link = href.Split('\"').First();
+                string fullPath = (link.StartsWith("/") ? url : "") + link;
+                if (IsValidURL(fullPath))
+                {
+                    string ur = MakeURLPretty(fullPath);
+
+                    urls.Add(ur);
+                }
+            }
+
+            return urls;
+        }
+
+        public bool IsValidURL(string url)
+        {
+            return Regex.IsMatch(url, @"http://www\..*");
+        }
+
+        public bool MayVisit(string url)
+        {
+            return !CannotAccess(url, Robots[ExtractDomain(url)].Item2).IsMatch(url); ;
         }
 
 
@@ -266,6 +366,8 @@ namespace Crawler
                 regPattern.Append(s);
             }
             regPattern.Append(')');
+
+            regPattern.Replace("*", ".*").Replace(".", "\\.");
 
             return new Regex(regPattern.ToString());
         }
