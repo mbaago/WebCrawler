@@ -5,3 +5,5 @@
 /Crawler/bin/Debug
 /Crawler/obj/Debug
 *.suo
+/Peter/bin/Debug
+/Peter/obj/Debug

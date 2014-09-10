@@ -16,6 +16,12 @@ namespace Crawler
             return web.DownloadString(url);
         }
 
+        public string MakeURLPretty(string url)
+        {
+            return new Uri(url).ToString();
+        }
+
+
         #region Jaccard
         /// <summary>
         /// Determine if two strings are near-duplicates
