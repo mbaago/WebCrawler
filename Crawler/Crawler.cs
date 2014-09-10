@@ -10,6 +10,16 @@ namespace Crawler
 {
     public class Crawler
     {
+        public Crawler(int numFrontQueues)
+        {
+            FrontQueues = new Queue<string>[numFrontQueues];
+            BackQueues = new Queue<string>[3];
+        }
+
+        private Queue<string>[] FrontQueues { get; set; }
+        private Queue<string>[] BackQueues { get; set; }
+
+
         public string DownloadHTML(string url)
         {
             WebClient web = new WebClient();
@@ -20,6 +30,8 @@ namespace Crawler
         {
             return new Uri(url).ToString();
         }
+
+
 
 
         #region Jaccard

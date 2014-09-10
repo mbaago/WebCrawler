@@ -10,7 +10,7 @@ namespace Peter
     {
         static void Main(string[] args)
         {
-            Crawler.Crawler craw = new Crawler.Crawler();
+            Crawler.Crawler craw = new Crawler.Crawler(10);
 
             string url = "httP://rDddit.com/r/stupid/%a0%05%7e/";
 
