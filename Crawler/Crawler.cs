@@ -54,6 +54,12 @@ namespace Crawler
             return new Uri(url).ToString();
         }
 
+        public string ExtractDomain(string url)
+        {
+            url = MakeURLPretty(url);
+            var splitter = url.Split(new char[] { '/' }, 3, StringSplitOptions.RemoveEmptyEntries);
+            return splitter[1];
+        }
 
 
         #region Jaccard
