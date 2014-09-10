@@ -4,11 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Net;
 
 namespace Crawler
 {
     public class Crawler
     {
+        public string DownloadHTML(string url)
+        {
+            WebClient web = new WebClient();
+            return web.DownloadString(url);
+        }
+
         #region Jaccard
         /// <summary>
         /// Determine if two strings are near-duplicates
