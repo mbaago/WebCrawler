@@ -13,11 +13,18 @@ namespace Crawler
         public Crawler(int numFrontQueues)
         {
             FrontQueues = new Queue<string>[numFrontQueues];
-            BackQueues = new Queue<string>[3];
+            BackQueues = new Dictionary<string, Queue<string>>();
         }
 
         private Queue<string>[] FrontQueues { get; set; }
-        private Queue<string>[] BackQueues { get; set; }
+        private Dictionary<string, Queue<string>> BackQueues { get; set; }
+
+        public void AddURLToQueue(string url)
+        {
+            url = MakeURLPretty(url);
+            int q = new Random().Next(0, FrontQueues.Length);
+            FrontQueues[q].Enqueue(url);
+        }
 
 
         public string DownloadHTML(string url)
@@ -28,9 +35,24 @@ namespace Crawler
 
         public string MakeURLPretty(string url)
         {
+            var lowURL = url.ToLower();
+
+            if (lowURL.StartsWith("http://www"))
+            {
+                return new Uri(url).ToString();
+            }
+            else if (lowURL.StartsWith("http://"))
+            {
+                var s = url.Split(new string[] { "//" }, StringSplitOptions.None);
+                url = s[0] + "//www." + s[1];
+            }
+            else if (lowURL.StartsWith("www"))
+            {
+                url = "http://" + url;
+            }
+
             return new Uri(url).ToString();
         }
-
 
 
 
