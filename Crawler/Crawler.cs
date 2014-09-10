@@ -12,12 +12,16 @@ namespace Crawler
     {
         public Crawler(int numFrontQueues)
         {
+            MaxNumberOfBackQueues = 3;
             FrontQueues = new Queue<string>[numFrontQueues];
             BackQueues = new Dictionary<string, Queue<string>>();
+            DomainsVisited = new Dictionary<string, DateTime>();
         }
 
+        private int MaxNumberOfBackQueues { get; set; }
         private Queue<string>[] FrontQueues { get; set; }
         private Dictionary<string, Queue<string>> BackQueues { get; set; }
+        private Dictionary<string, DateTime> DomainsVisited { get; set; }
 
         public void AddURLToQueue(string url)
         {
@@ -26,10 +30,91 @@ namespace Crawler
             FrontQueues[q].Enqueue(url);
         }
 
+        public string BackQueueSelector()
+        {
+            // første gang, alle tomme
+            while (BackQueues.Count < MaxNumberOfBackQueues)
+            {
+                string url = FrontQueueSelector();
+                string dom = ExtractDomain(url);
+                if (BackQueues.Keys.Contains(dom))
+                {
+                    BackQueues[dom].Enqueue(url);
+                }
+                else
+                {
+                    BackQueues.Add(dom, new Queue<string>());
+                    BackQueues[dom].Enqueue(url);
+                }
+            }
+
+            // Simulate the heap
+            var orderedTimes = DomainsVisited
+                .Where(d => BackQueues.Keys.Contains(d.Key))
+                .OrderByDescending(t => t.Value);
+
+            var oldest = orderedTimes.First();
+
+            while (DateTime.Now - oldest.Value < TimeSpan.FromSeconds(1))
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+
+            var returnURL = BackQueues[oldest.Key].Dequeue();
+
+            while (BackQueues[oldest.Key].Count == 0)
+            {
+                var item = FrontQueueSelector();
+                var dom = ExtractDomain(item);
+
+                if (BackQueues.ContainsKey(dom))
+                {
+                    BackQueues[dom].Enqueue(item);
+                }
+                else
+                {
+                    BackQueues[dom] = new Queue<string>();
+                    BackQueues[dom].Enqueue(item);
+                }
+            }
+
+            return returnURL;
+        }
+
+        private string FrontQueueSelector()
+        {
+            int rand = new Random().Next(0, FrontQueues.Length);
+
+            for (int i = 0; i < FrontQueues.Length; i++)
+            {
+                if (FrontQueues[rand].Count > 0)
+                {
+                    return FrontQueues[rand].Dequeue();
+                }
+
+                rand = rand++ % FrontQueues.Length;
+            }
+
+            throw new Exception("FrontQueues were empty");
+        }
+
+        private void VisitDomain(string url)
+        {
+            string dom = ExtractDomain(url);
+            if (DomainsVisited.ContainsKey(dom))
+            {
+                DomainsVisited[dom] = DateTime.Now;
+            }
+            else
+            {
+                DomainsVisited.Add(dom, DateTime.Now);
+            }
+        }
 
         public string DownloadHTML(string url)
         {
             WebClient web = new WebClient();
+            VisitDomain(url);
             return web.DownloadString(url);
         }
 
