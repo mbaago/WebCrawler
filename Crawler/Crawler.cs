@@ -20,12 +20,14 @@ namespace Crawler
             }
             BackQueues = new Dictionary<string, Queue<string>>();
             DomainsVisited = new Dictionary<string, DateTime>();
-            Robots = new Dictionary<string, Tuple<DateTime, string[]>>();
 
             VisitedURLS = new List<string>();
+
+            RobotStuff = new RobotsStuff(TimeSpan.FromSeconds(60));
         }
 
         public int TotalVisits { get; set; }
+        private RobotsStuff RobotStuff { get; set; }
 
         public void CrawlTheWeb(IEnumerable<string> seed)
         {
@@ -50,7 +52,6 @@ namespace Crawler
         private Queue<string>[] FrontQueues { get; set; }
         private Dictionary<string, Queue<string>> BackQueues { get; set; }
         private Dictionary<string, DateTime> DomainsVisited { get; set; }
-        private Dictionary<string, Tuple<DateTime, string[]>> Robots { get; set; }
         private List<string> VisitedURLS { get; set; }
 
         public void AddURLToQueue(string url)
@@ -150,14 +151,10 @@ namespace Crawler
             url = URLStuff.MakeURLPretty(url);
             WebClient web = new WebClient();
             string dom = URLStuff.ExtractDomain(url);
-            if (!Robots.ContainsKey(dom))
-            {
-                string robot = web.DownloadString("http://" + dom + "/robots.txt");
-                Robots.Add(dom, new Tuple<DateTime, string[]>(DateTime.Now, robot.Split('\n')));
-                VisitDomain(url);
-            }
 
-            if (MayVisit(url))
+            RobotStuff.DownloadRobotsIfTooOld(url);
+
+            if (RobotStuff.IsVisitAllowed(url))
             {
                 VisitDomain(url);
                 VisitedURLS.Add(url);
@@ -168,8 +165,6 @@ namespace Crawler
                 return null;
             }
         }
-
-
 
         public IEnumerable<string> ExtractLinksFromHTML(string url)
         {
@@ -198,14 +193,7 @@ namespace Crawler
 
             return urls;
         }
-
-
-        public bool MayVisit(string url)
-        {
-            return !CannotAccess(url, Robots[URLStuff.ExtractDomain(url)].Item2).IsMatch(url); ;
-        }
-
-
+        
         #region Jaccard
         /// <summary>
         /// Determine if two strings are near-duplicates
@@ -285,50 +273,6 @@ namespace Crawler
             }
 
             return shingles;
-        }
-        #endregion
-
-        #region robots
-        /// <summary>
-        /// Parse robots.txt from a specific url.
-        /// Assumes robots.txt is properly formatted.
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="robots"></param>
-        /// <returns>A regex to determine if a url is disallowed.</returns>
-        public Regex CannotAccess(string url, IEnumerable<string> robots)
-        {
-            // No restrictions
-            if (robots == null || robots.Count() == 0)
-            {
-                return new Regex(@".*");
-            }
-
-            // Find what is disallowed.
-            var disallow = robots.SkipWhile(s => !Regex.IsMatch(s, @"User-Agent: \*", RegexOptions.IgnoreCase)) // Start from user agent *.
-                .TakeWhile(s => !string.IsNullOrWhiteSpace(s)) // Read until blank line (where allow/disallow hopefully ends).
-                .Skip(1) // Skip the user agent string.
-                .Where(s => s.StartsWith("Disallow")) // We only need disallowed stuff.
-                .Select(s => s.Split(':').Last().Trim()); // Select the disallowed stuff.
-
-            if (disallow.Count() == 0)
-            {
-                return new Regex(@".*");
-            }
-
-            // Build the regex string
-            StringBuilder regPattern = new StringBuilder(url + "(" + disallow.First());
-            foreach (var s in disallow.Skip(1))
-            {
-                regPattern.Append('|');
-                //regPattern.Append(url);
-                regPattern.Append(s);
-            }
-            regPattern.Append(')');
-
-            regPattern.Replace("*", ".*").Replace(".", "\\.");
-
-            return new Regex(regPattern.ToString());
         }
         #endregion
     }
