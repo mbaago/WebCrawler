@@ -13,6 +13,7 @@ namespace Crawler
         {
             MaxAge = maxAge;
             Robots = new Dictionary<string, Tuple<DateTime, string[]>>();
+            CachedRegexes = new Dictionary<string, Tuple<DateTime, Regex>>();
         }
 
         /// <summary>
@@ -22,6 +23,8 @@ namespace Crawler
         ///     value: file contents
         /// </summary>
         private Dictionary<string, Tuple<DateTime, string[]>> Robots { get; set; }
+
+        private Dictionary<string, Tuple<DateTime, Regex>> CachedRegexes { get; set; }
 
         /// <summary>
         /// How old can a robot be before it gets removed.
@@ -35,12 +38,19 @@ namespace Crawler
         /// <param name="url"></param>
         /// <param name="robotsContent"></param>
         /// <returns>A regex to determine if a url is disallowed.</returns>
-        public static Regex IsURLInDisallowedList(string url, IEnumerable<string> robotsContent)
+        public Regex IsURLInDisallowedList(string url, IEnumerable<string> robotsContent)
         {
+            var domain = URLStuff.ExtractDomain(url);
+            if (CachedRegexes.ContainsKey(domain) && DateTime.Now - CachedRegexes[domain].Item1 < MaxAge)
+            {
+                return CachedRegexes[domain].Item2;
+            }
+
             // No restrictions
+            // 
             if (robotsContent == null || robotsContent.Count() == 0)
             {
-                return new Regex(@".*");
+                return new Regex(@"@.");
             }
 
             // Find what is disallowed.
@@ -52,7 +62,7 @@ namespace Crawler
 
             if (disallow.Count() == 0)
             {
-                return new Regex(@".*");
+                return new Regex(@"$.");
             }
 
             // Build the regex string
@@ -64,10 +74,10 @@ namespace Crawler
                 regPattern.Append(s);
             }
             regPattern.Append(')');
-
             regPattern.Replace("*", ".*").Replace(".", "\\.");
 
-            return new Regex(regPattern.ToString());
+            CachedRegexes[domain] = new Tuple<DateTime, Regex>(DateTime.Now, new Regex(regPattern.ToString()));
+            return CachedRegexes[domain].Item2;
         }
 
         public bool IsVisitAllowed(string prettyURL)
