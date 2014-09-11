@@ -55,7 +55,7 @@ namespace Crawler
 
         public void AddURLToQueue(string url)
         {
-            url = MakeURLPretty(url);
+            url = URLStuff.MakeURLPretty(url);
 
             if (!VisitedURLS.Contains(url))
             {
@@ -70,7 +70,7 @@ namespace Crawler
             while (BackQueues.Count < MaxNumberOfBackQueues)
             {
                 string url = FrontQueueSelector();
-                string dom = ExtractDomain(url);
+                string dom = URLStuff.ExtractDomain(url);
                 if (BackQueues.Keys.Contains(dom))
                 {
                     BackQueues[dom].Enqueue(url);
@@ -99,7 +99,7 @@ namespace Crawler
             while (BackQueues[oldest.Key].Count == 0)
             {
                 var item = FrontQueueSelector();
-                var dom = ExtractDomain(item);
+                var dom = URLStuff.ExtractDomain(item);
 
                 if (BackQueues.ContainsKey(dom))
                 {
@@ -134,7 +134,7 @@ namespace Crawler
 
         private void VisitDomain(string url)
         {
-            string dom = ExtractDomain(url);
+            string dom = URLStuff.ExtractDomain(url);
             if (DomainsVisited.ContainsKey(dom))
             {
                 DomainsVisited[dom] = DateTime.Now;
@@ -147,9 +147,9 @@ namespace Crawler
 
         public string DownloadHTML(string url)
         {
-            url = MakeURLPretty(url);
+            url = URLStuff.MakeURLPretty(url);
             WebClient web = new WebClient();
-            string dom = ExtractDomain(url);
+            string dom = URLStuff.ExtractDomain(url);
             if (!Robots.ContainsKey(dom))
             {
                 string robot = web.DownloadString("http://" + dom + "/robots.txt");
@@ -169,44 +169,7 @@ namespace Crawler
             }
         }
 
-        public string MakeURLPretty(string url)
-        {
-            var lowURL = url.ToLower();
 
-            if (lowURL.StartsWith("http://www"))
-            {
-                url = url;
-            }
-            else if (lowURL.StartsWith("http://"))
-            {
-                var s = url.Split(new string[] { "//" }, StringSplitOptions.None);
-                url = s[0] + "//www." + s[1];
-            }
-            else if (lowURL.StartsWith("www"))
-            {
-                url = "http://" + url;
-            }
-            else
-            {
-                url = "http://www." + url;
-            }
-
-            url = new Uri(url).ToString();
-
-            if (url.EndsWith("/"))
-            {
-                url = url.Substring(0, url.Length - 1);
-            }
-
-            return url;
-        }
-
-        public string ExtractDomain(string url)
-        {
-            url = MakeURLPretty(url);
-            var splitter = url.Split(new char[] { '/' }, 3, StringSplitOptions.RemoveEmptyEntries);
-            return splitter[1];
-        }
 
         public IEnumerable<string> ExtractLinksFromHTML(string url)
         {
@@ -225,9 +188,9 @@ namespace Crawler
             {
                 var link = href.Split('\"').First();
                 string fullPath = (link.StartsWith("/") ? url : "") + link;
-                if (IsValidURL(fullPath))
+                if (URLStuff.IsValidURL(fullPath))
                 {
-                    string ur = MakeURLPretty(fullPath);
+                    string ur = URLStuff.MakeURLPretty(fullPath);
 
                     urls.Add(ur);
                 }
@@ -236,14 +199,10 @@ namespace Crawler
             return urls;
         }
 
-        public bool IsValidURL(string url)
-        {
-            return Regex.IsMatch(url, @"http://www\..*");
-        }
 
         public bool MayVisit(string url)
         {
-            return !CannotAccess(url, Robots[ExtractDomain(url)].Item2).IsMatch(url); ;
+            return !CannotAccess(url, Robots[URLStuff.ExtractDomain(url)].Item2).IsMatch(url); ;
         }
 
 
