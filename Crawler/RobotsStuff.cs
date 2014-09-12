@@ -119,5 +119,12 @@ namespace Crawler
             string content = new System.Net.WebClient().DownloadString(robot);
             Robots[URLStuff.ExtractDomain(url)] = new Tuple<DateTime, string[]>(DateTime.Now, robot.Split('\n'));
         }
+
+        public void RemoveRobot(string url)
+        {
+            var domain = URLStuff.ExtractDomain(url);
+            Robots.Remove(domain);
+            CachedRegexes.Remove(domain);
+        }
     }
 }
