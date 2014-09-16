@@ -28,6 +28,7 @@ namespace Crawler
 
         public int TotalVisits { get; set; }
         private RobotsStuff RobotStuff { get; set; }
+        private Mercator Queuer { get; set; }
 
         public void CrawlTheWeb(IEnumerable<string> seed)
         {
