@@ -83,11 +83,10 @@ namespace Crawler
 
         private void BackQueueRouter()
         {
-            var empty = BackQueues.Where(bq => bq.Value.Count == 0).Select(q => q.Key).ToArray();
-
-            foreach (var dom in empty)
+            var empty = BackQueues.Where(b => b.Value.Count == 0).Select(b => b.Key).ToArray();
+            foreach (var q in empty)
             {
-                BackQueues.Remove(dom);
+                BackQueues.Remove(q);
             }
 
             while (BackQueues.Count < MaxNumberOfBackQueues)
@@ -105,23 +104,32 @@ namespace Crawler
                     BackQueues[url.GetDomain] = new Queue<PrettyURL>();
                     BackQueues[url.GetDomain].Enqueue(url);
 
-                    BackQueueHeapSimulator[url.GetDomain] = DateTime.MinValue;
+                    BackQueueHeapSimulator[url.GetDomain] = DateTime.Now;
                 }
             }
         }
 
         public PrettyURL GetURLToCrawl()
         {
-            var oldestDomain = BackQueueHeapSimulator.OrderBy(h => h.Value).First();
+            //CleanupBackQueueHeap();
+
+            var oldestDomain = BackQueueHeapSimulator.OrderBy(t => t.Value).Select(t => t.Key);
+            var domainsInBQ = BackQueues.Keys;
+            var OldestDomainsInBQ = domainsInBQ.Intersect(oldestDomain).First();
+            var oldDomain = BackQueueHeapSimulator.Where(p => p.Key == OldestDomainsInBQ).First();
+
 
             // Wait until old enough.
-            while (DateTime.Now - oldestDomain.Value < TimeBetweenVisits)
+            if (DateTime.Now - oldDomain.Value < TimeBetweenVisits)
             {
-                System.Threading.Thread.Sleep(1000);
-                Debug.WriteLine("sleeping");
+                Debug.WriteLine("Sleeping for " + oldDomain);
+                while (DateTime.Now - oldDomain.Value < TimeBetweenVisits)
+                {
+                    System.Threading.Thread.Sleep(1000);
+                }
             }
 
-            var url = BackQueues.Values.Where(q => q.Count > 0).First().Dequeue();
+            var url = BackQueues[oldDomain.Key].Dequeue();
 
             // Update BackQueue if necessary.
             if (BackQueues[url.GetDomain].Count == 0)
@@ -129,13 +137,26 @@ namespace Crawler
                 BackQueueRouter();
             }
 
-
-
             BackQueueHeapSimulator[url.GetDomain] = DateTime.Now;
 
             Debug.WriteLine("GetURLToCrawl: " + url);
 
             return url;
+        }
+
+        private void CleanupBackQueueHeap()
+        {
+            // Get domains not in a backqueue
+            var domainsNotInBackQueue = BackQueueHeapSimulator.Where(h => !BackQueues.ContainsKey(h.Key)).Select(h => h.Key).ToArray();
+
+            foreach (var domain in domainsNotInBackQueue)
+            {
+                // Remove if old enough
+                if (DateTime.Now - BackQueueHeapSimulator[domain] > TimeBetweenVisits)
+                {
+                    BackQueueHeapSimulator.Remove(domain);
+                }
+            }
         }
     }
 }

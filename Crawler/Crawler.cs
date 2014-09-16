@@ -72,7 +72,7 @@ namespace Crawler
                 catch (Exception ex)
                 {
                     // tough luck
-                    System.Diagnostics.Debug.WriteLine("Error downloading " + url);
+                    System.Diagnostics.Debug.WriteLine("Crawler: Error downloading " + url);
                     return null;
                 }
             }

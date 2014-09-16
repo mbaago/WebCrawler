@@ -114,7 +114,7 @@ namespace Crawler
 
         private void DownloadRobot_AddToRobots(PrettyURL url)
         {
-            string robot = url.GetPrettyURL + "/" + "robots.txt";
+            string robot = url.GetDomain + "/" + "robots.txt";
             try
             {
                 string content = new System.Net.WebClient().DownloadString(robot);
@@ -123,7 +123,7 @@ namespace Crawler
             catch (Exception ex)
             {
                 // tough luck
-                System.Diagnostics.Debug.WriteLine("Error downloading " + url);
+                System.Diagnostics.Debug.WriteLine("Robot: Error downloading " + url);
             }
         }
 
