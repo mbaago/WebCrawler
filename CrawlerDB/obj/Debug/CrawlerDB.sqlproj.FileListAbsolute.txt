@@ -1,0 +1,9 @@
+C:\Users\Morten\Git\WI mini 1\WebCrawler\CrawlerDB\bin\Debug\CrawlerDB.dacpac
+C:\Users\Morten\Git\WI mini 1\WebCrawler\CrawlerDB\obj\Debug\Model.xml
+C:\Users\Morten\Git\WI mini 1\WebCrawler\CrawlerDB\obj\Debug\refactor.xml
+C:\Users\Morten\Git\WI mini 1\WebCrawler\CrawlerDB\obj\Debug\postdeploy.sql
+C:\Users\Morten\Git\WI mini 1\WebCrawler\CrawlerDB\obj\Debug\predeploy.sql
+C:\Users\Morten\Git\WI mini 1\WebCrawler\CrawlerDB\obj\Debug\CrawlerDB.dll
+C:\Users\Morten\Git\WI mini 1\WebCrawler\CrawlerDB\obj\Debug\CrawlerDB.pdb
+C:\Users\Morten\Git\WI mini 1\WebCrawler\CrawlerDB\bin\Debug\CrawlerDB.dll
+C:\Users\Morten\Git\WI mini 1\WebCrawler\CrawlerDB\bin\Debug\CrawlerDB.pdb
