@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Crawler
 {
     class Mercator
     {
-        public Mercator(int frontQueues, int backQueues, TimeSpan timeBetweenVisits)
+        public Mercator(int frontQueues, int backQueues, TimeSpan timeBetweenVisits, IEnumerable<PrettyURL> seed)
         {
             FrontQueues = new List<Queue<PrettyURL>>(frontQueues);
             for (int i = 0; i < frontQueues; i++)
@@ -23,6 +24,13 @@ namespace Crawler
             TimeBetweenVisits = timeBetweenVisits;
 
             AllURLS = new List<PrettyURL>();
+
+            // Apply the seed
+            foreach (var s in seed)
+            {
+                AddURLToFrontQueue(s);
+            }
+            BackQueueRouter();
         }
 
         public TimeSpan TimeBetweenVisits { get; set; }
@@ -75,6 +83,13 @@ namespace Crawler
 
         private void BackQueueRouter()
         {
+            var empty = BackQueues.Where(bq => bq.Value.Count == 0).Select(q => q.Key).ToArray();
+
+            foreach (var dom in empty)
+            {
+                BackQueues.Remove(dom);
+            }
+
             while (BackQueues.Count < MaxNumberOfBackQueues)
             {
                 var url = FrontQueueSelector();
@@ -97,38 +112,28 @@ namespace Crawler
 
         public PrettyURL GetURLToCrawl()
         {
+            var oldestDomain = BackQueueHeapSimulator.OrderBy(h => h.Value).First();
 
-            BackQueueRouter();
-
-            string domain;
-            // Have visited nothing.
-            if (BackQueueHeapSimulator.Count > 0)
+            // Wait until old enough.
+            while (DateTime.Now - oldestDomain.Value < TimeBetweenVisits)
             {
-                var oldestDomain = BackQueueHeapSimulator.OrderBy(h => h.Value).First();
-                domain = oldestDomain.Key;
-
-                // Wait until old enough.
-                while (DateTime.Now - oldestDomain.Value < TimeBetweenVisits)
-                {
-                    System.Threading.Thread.Sleep(10);
-                }
+                System.Threading.Thread.Sleep(1000);
+                Debug.WriteLine("sleeping");
             }
 
-            var a = BackQueues.Values.OrderBy(q => q.Count);
-            var b = a.First();
-            var c = b.Dequeue();
-
-            domain = BackQueues.Values.OrderBy(q => q.Count).First().Dequeue().GetDomain;
-
-            var url = BackQueues[domain].Dequeue();
+            var url = BackQueues.Values.Where(q => q.Count > 0).First().Dequeue();
 
             // Update BackQueue if necessary.
-            if (BackQueues[domain].Count == 0)
+            if (BackQueues[url.GetDomain].Count == 0)
             {
                 BackQueueRouter();
             }
 
+
+
             BackQueueHeapSimulator[url.GetDomain] = DateTime.Now;
+
+            Debug.WriteLine("GetURLToCrawl: " + url);
 
             return url;
         }

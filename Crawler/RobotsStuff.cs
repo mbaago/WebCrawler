@@ -38,8 +38,10 @@ namespace Crawler
         /// <param name="url"></param>
         /// <param name="robotsContent"></param>
         /// <returns>A regex to determine if a url is disallowed.</returns>
-        public Regex IsURLInDisallowedList(PrettyURL url, IEnumerable<string> robotsContent)
+        public Regex IsURLInDisallowedList(PrettyURL url)
         {
+            DownloadRobotsIfTooOld(url);
+            var robotsContent = Robots[url.GetDomain].Item2;
             if (CachedRegexes.ContainsKey(url.GetDomain) && DateTime.Now - CachedRegexes[url.GetDomain].Item1 < MaxAge)
             {
                 return CachedRegexes[url.GetDomain].Item2;
@@ -82,7 +84,7 @@ namespace Crawler
         public bool IsVisitAllowed(PrettyURL url)
         {
             var robotContent = GetRobotContent_DownloadsIfNecessary(url);
-            return !IsURLInDisallowedList(url, robotContent).IsMatch(url.GetPrettyURL);
+            return !IsURLInDisallowedList(url).IsMatch(url.GetPrettyURL);
         }
 
         private IEnumerable<string> GetRobotContent_DownloadsIfNecessary(PrettyURL url)
@@ -113,8 +115,16 @@ namespace Crawler
         private void DownloadRobot_AddToRobots(PrettyURL url)
         {
             string robot = url.GetPrettyURL + "/" + "robots.txt";
-            string content = new System.Net.WebClient().DownloadString(robot);
-            Robots[url.GetDomain] = new Tuple<DateTime, string[]>(DateTime.Now, robot.Split('\n'));
+            try
+            {
+                string content = new System.Net.WebClient().DownloadString(robot);
+                Robots[url.GetDomain] = new Tuple<DateTime, string[]>(DateTime.Now, robot.Split('\n'));
+            }
+            catch (Exception ex)
+            {
+                // tough luck
+                System.Diagnostics.Debug.WriteLine("Error downloading " + url);
+            }
         }
 
         public void RemoveRobot(PrettyURL url)
