@@ -10,23 +10,27 @@ namespace Crawler
     {
         public Mercator(int frontQueues, int backQueues)
         {
-            FrontQueues = new List<string>(frontQueues);
-            BackQueues = new List<string>(backQueues);
+            FrontQueues = new List<PrettyURL>(frontQueues);
+            BackQueues = new Dictionary<string, Queue<PrettyURL>>();
             BackQueueHeap = new Dictionary<DateTime, string>();
         }
-        
-        private List<string> FrontQueues { get; set; }
-        private List<string> BackQueues { get; set; }
+
+        private int MaxNumberOfBackQueues { get; set; }
+
+        private List<PrettyURL> FrontQueues { get; set; }
+        private Dictionary<string, Queue<PrettyURL>> BackQueues { get; set; }
         private Dictionary<DateTime, string> BackQueueHeap { get; set; }
 
 
 
-        public bool AddURLToFrontQueue(string prettyURL)
+        public bool AddURLToFrontQueue(PrettyURL url)
         {
+
+
             throw new NotImplementedException();
         }
 
-        public string GetURLToCrawl()
+        public PrettyURL GetURLToCrawl()
         {
             throw new NotImplementedException();
         }

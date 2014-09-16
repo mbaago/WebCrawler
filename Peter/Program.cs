@@ -10,14 +10,13 @@ namespace Peter
     {
         static void Main(string[] args)
         {
-            Crawler.Crawler craw = new Crawler.Crawler(10);
+            Console.WriteLine("Started");
 
-            string url = "httP://rDddit.com/r/stupid/%a0%05%7e/";
+            Crawler.Crawler craw = new Crawler.Crawler(10) { TotalVisits = 1000 };
 
-            string res = craw.MakeURLPretty(url);
+            craw.CrawlTheWeb(new string[] { "newz.dk", "reddit.com" });
 
-            Console.WriteLine(res);
-
+            Console.WriteLine("Completed");
             Console.ReadKey();
         }
     }

@@ -38,12 +38,11 @@ namespace Crawler
         /// <param name="url"></param>
         /// <param name="robotsContent"></param>
         /// <returns>A regex to determine if a url is disallowed.</returns>
-        public Regex IsURLInDisallowedList(string url, IEnumerable<string> robotsContent)
+        public Regex IsURLInDisallowedList(PrettyURL url, IEnumerable<string> robotsContent)
         {
-            var domain = URLStuff.ExtractDomain(url);
-            if (CachedRegexes.ContainsKey(domain) && DateTime.Now - CachedRegexes[domain].Item1 < MaxAge)
+            if (CachedRegexes.ContainsKey(url.GetDomain) && DateTime.Now - CachedRegexes[url.GetDomain].Item1 < MaxAge)
             {
-                return CachedRegexes[domain].Item2;
+                return CachedRegexes[url.GetDomain].Item2;
             }
 
             // No restrictions
@@ -76,33 +75,31 @@ namespace Crawler
             regPattern.Append(')');
             regPattern.Replace("*", ".*").Replace(".", "\\.");
 
-            CachedRegexes[domain] = new Tuple<DateTime, Regex>(DateTime.Now, new Regex(regPattern.ToString()));
-            return CachedRegexes[domain].Item2;
+            CachedRegexes[url.GetDomain] = new Tuple<DateTime, Regex>(DateTime.Now, new Regex(regPattern.ToString()));
+            return CachedRegexes[url.GetDomain].Item2;
         }
 
-        public bool IsVisitAllowed(string prettyURL)
+        public bool IsVisitAllowed(PrettyURL url)
         {
-            var robotContent = GetRobotContent_DownloadsIfNecessary(prettyURL);
-            return !IsURLInDisallowedList(prettyURL, robotContent).IsMatch(prettyURL);
+            var robotContent = GetRobotContent_DownloadsIfNecessary(url);
+            return !IsURLInDisallowedList(url, robotContent).IsMatch(url.GetPrettyURL);
         }
 
-        private IEnumerable<string> GetRobotContent_DownloadsIfNecessary(string pretyURL)
+        private IEnumerable<string> GetRobotContent_DownloadsIfNecessary(PrettyURL url)
         {
-            if (!Robots.ContainsKey(pretyURL))
+            if (!Robots.ContainsKey(url.GetDomain))
             {
-                DownloadRobot_AddToRobots(pretyURL);
+                DownloadRobot_AddToRobots(url);
             }
 
-            return Robots[URLStuff.ExtractDomain(pretyURL)].Item2;
+            return Robots[url.GetDomain].Item2;
         }
 
-        public void DownloadRobotsIfTooOld(string url)
+        public void DownloadRobotsIfTooOld(PrettyURL url)
         {
-            var domain = URLStuff.ExtractDomain(url);
-
-            if (Robots.ContainsKey(domain))
+            if (Robots.ContainsKey(url.GetDomain))
             {
-                if (DateTime.Now - Robots[domain].Item1 > MaxAge)
+                if (DateTime.Now - Robots[url.GetDomain].Item1 > MaxAge)
                 {
                     DownloadRobot_AddToRobots(url);
                 }
@@ -113,18 +110,17 @@ namespace Crawler
             }
         }
 
-        private void DownloadRobot_AddToRobots(string url)
+        private void DownloadRobot_AddToRobots(PrettyURL url)
         {
-            string robot = URLStuff.MakeURLPretty(url) + "/" + "robots.txt";
+            string robot = url.GetPrettyURL + "/" + "robots.txt";
             string content = new System.Net.WebClient().DownloadString(robot);
-            Robots[URLStuff.ExtractDomain(url)] = new Tuple<DateTime, string[]>(DateTime.Now, robot.Split('\n'));
+            Robots[url.GetDomain] = new Tuple<DateTime, string[]>(DateTime.Now, robot.Split('\n'));
         }
 
-        public void RemoveRobot(string url)
+        public void RemoveRobot(PrettyURL url)
         {
-            var domain = URLStuff.ExtractDomain(url);
-            Robots.Remove(domain);
-            CachedRegexes.Remove(domain);
+            Robots.Remove(url.GetDomain);
+            CachedRegexes.Remove(url.GetDomain);
         }
     }
 }
