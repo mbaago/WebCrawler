@@ -10,7 +10,7 @@ namespace Crawler
 {
     public class Crawler
     {
-        public Crawler(int numFrontQueues)
+        public Crawler(int numFrontQueues, TimeSpan timebetweenVisits)
         {
             //MaxNumberOfBackQueues = 3;
             //FrontQueues = new Queue<string>[numFrontQueues];
@@ -23,15 +23,33 @@ namespace Crawler
 
             //VisitedURLS = new List<string>();
 
-            //RobotStuff = new RobotsStuff(TimeSpan.FromSeconds(60));
+            //IAMAROBOTHANDLER = new RobotsStuff(TimeSpan.FromSeconds(60));
+
+            TotalVisits = 1000;
+            IAMAROBOTHANDLER = new RobotsStuff(timebetweenVisits);
+            IAMTHEMERCATOR = new Mercator(numFrontQueues, 3, timebetweenVisits);
         }
 
         public int TotalVisits { get; set; }
-        private RobotsStuff RobotStuff { get; set; }
-        private Mercator Queuer { get; set; }
+        private RobotsStuff IAMAROBOTHANDLER { get; set; }
+        private Mercator IAMTHEMERCATOR { get; set; }
 
-        public void CrawlTheWeb(IEnumerable<string> seed)
+        public void CrawlTheWeb(IEnumerable<PrettyURL> seed)
         {
+            foreach (var s in seed)
+            {
+                IAMTHEMERCATOR.AddURLToFrontQueue(s);
+            }
+
+            var visits = new List<PrettyURL>();
+
+            for (int i = 0; i < 10; i++)
+            {
+                visits.Add(IAMTHEMERCATOR.GetURLToCrawl());
+            }
+
+            int x;
+
             //foreach (var item in seed)
             //{
             //    AddURLToQueue(item);
@@ -52,18 +70,7 @@ namespace Crawler
         //private Dictionary<string, Queue<string>> BackQueues { get; set; }
         //private Dictionary<string, DateTime> DomainsVisited { get; set; }
         //private List<string> VisitedURLS { get; set; }
-
-        //public void AddURLToQueue(string url)
-        //{
-        //    url = URLStuff.MakeURLPretty(url);
-
-        //    if (!VisitedURLS.Contains(url))
-        //    {
-        //        int q = new Random().Next(0, FrontQueues.Length);
-        //        FrontQueues[q].Enqueue(url);
-        //    }
-        //}
-
+        
         //public string BackQueueSelector()
         //{
         //    // første gang, alle tomme
@@ -151,9 +158,9 @@ namespace Crawler
         //    WebClient web = new WebClient();
         //    string dom = URLStuff.ExtractDomain(url);
 
-        //    RobotStuff.DownloadRobotsIfTooOld(url);
+        //    IAMAROBOTHANDLER.DownloadRobotsIfTooOld(url);
 
-        //    if (RobotStuff.IsVisitAllowed(url))
+        //    if (IAMAROBOTHANDLER.IsVisitAllowed(url))
         //    {
         //        VisitDomain(url);
         //        VisitedURLS.Add(url);

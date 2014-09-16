@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Crawler
 {
-    class PrettyURL
+    public class PrettyURL
     {
         public PrettyURL(string url)
         {
@@ -19,5 +19,11 @@ namespace Crawler
 
         public string GetPrettyURL { get { return MakePrettyURL.Value; } }
         public string GetDomain { get { return ExtractDomain.Value; } }
+
+
+        public override string ToString()
+        {
+            return GetPrettyURL;
+        }
     }
 }
