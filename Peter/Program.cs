@@ -21,7 +21,13 @@ namespace Peter
             //Console.WriteLine(res);
 
             test();
+            Console.WriteLine("Started");
 
+            Crawler.Crawler craw = new Crawler.Crawler(10) { TotalVisits = 1000 };
+
+            craw.CrawlTheWeb(new string[] { "newz.dk", "reddit.com" });
+
+            Console.WriteLine("Completed");
             Console.ReadKey();
         }
 

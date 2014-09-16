@@ -12,178 +12,185 @@ namespace Crawler
     {
         public Crawler(int numFrontQueues)
         {
-            FrontQueues = new Queue<string>[numFrontQueues];
-            BackQueues = new Dictionary<string, Queue<string>>();
+            //MaxNumberOfBackQueues = 3;
+            //FrontQueues = new Queue<string>[numFrontQueues];
+            //for (int i = 0; i < FrontQueues.Length; i++)
+            //{
+            //    FrontQueues[i] = new Queue<string>();
+            //}
+            //BackQueues = new Dictionary<string, Queue<string>>();
+            //DomainsVisited = new Dictionary<string, DateTime>();
+
+            //VisitedURLS = new List<string>();
+
+            //RobotStuff = new RobotsStuff(TimeSpan.FromSeconds(60));
         }
 
-        private Queue<string>[] FrontQueues { get; set; }
-        private Dictionary<string, Queue<string>> BackQueues { get; set; }
+        public int TotalVisits { get; set; }
+        private RobotsStuff RobotStuff { get; set; }
+        private Mercator Queuer { get; set; }
 
-        public void AddURLToQueue(string url)
+        public void CrawlTheWeb(IEnumerable<string> seed)
         {
-            url = MakeURLPretty(url);
-            int q = new Random().Next(0, FrontQueues.Length);
-            FrontQueues[q].Enqueue(url);
+            //foreach (var item in seed)
+            //{
+            //    AddURLToQueue(item);
+            //}
+
+            //foreach (var url in seed)
+            //{
+
+            //    foreach (var link in ExtractLinksFromHTML(url))
+            //    {
+            //        AddURLToQueue(link);
+            //    }
+            //}
         }
 
+        //private int MaxNumberOfBackQueues { get; set; }
+        //private Queue<string>[] FrontQueues { get; set; }
+        //private Dictionary<string, Queue<string>> BackQueues { get; set; }
+        //private Dictionary<string, DateTime> DomainsVisited { get; set; }
+        //private List<string> VisitedURLS { get; set; }
 
-        public string DownloadHTML(string url)
-        {
-            WebClient web = new WebClient();
-            return web.DownloadString(url);
-        }
+        //public void AddURLToQueue(string url)
+        //{
+        //    url = URLStuff.MakeURLPretty(url);
 
-        public string MakeURLPretty(string url)
-        {
-            var lowURL = url.ToLower();
+        //    if (!VisitedURLS.Contains(url))
+        //    {
+        //        int q = new Random().Next(0, FrontQueues.Length);
+        //        FrontQueues[q].Enqueue(url);
+        //    }
+        //}
 
-            if (lowURL.StartsWith("http://www"))
-            {
-                return new Uri(url).ToString();
-            }
-            else if (lowURL.StartsWith("http://"))
-            {
-                var s = url.Split(new string[] { "//" }, StringSplitOptions.None);
-                url = s[0] + "//www." + s[1];
-            }
-            else if (lowURL.StartsWith("www"))
-            {
-                url = "http://" + url;
-            }
+        //public string BackQueueSelector()
+        //{
+        //    // første gang, alle tomme
+        //    while (BackQueues.Count < MaxNumberOfBackQueues)
+        //    {
+        //        string url = FrontQueueSelector();
+        //        string dom = URLStuff.ExtractDomain(url);
+        //        if (BackQueues.Keys.Contains(dom))
+        //        {
+        //            BackQueues[dom].Enqueue(url);
+        //        }
+        //        else
+        //        {
+        //            BackQueues.Add(dom, new Queue<string>());
+        //            BackQueues[dom].Enqueue(url);
+        //        }
+        //    }
 
-            return new Uri(url).ToString();
-        }
+        //    // Simulate the heap
+        //    var orderedTimes = DomainsVisited
+        //        .Where(d => BackQueues.Keys.Contains(d.Key))
+        //        .OrderByDescending(t => t.Value);
 
-        public string ExtractDomain(string url)
-        {
-            url = MakeURLPretty(url);
-            var splitter = url.Split(new char[] { '/' }, 3, StringSplitOptions.RemoveEmptyEntries);
-            return splitter[1];
-        }
+        //    var oldest = orderedTimes.First();
 
+        //    while (DateTime.Now - oldest.Value < TimeSpan.FromSeconds(1))
+        //    {
+        //        System.Threading.Thread.Sleep(10);
+        //    }
 
-        #region Jaccard
-        /// <summary>
-        /// Determine if two strings are near-duplicates
-        /// </summary>
-        /// <param name="s1"></param>
-        /// <param name="s2"></param>
-        /// <param name="shingleSize">How many words in a shingle.</param>
-        /// <param name="howClose">When are the two strings near-duplicates (0-1.0).</param>
-        /// <returns>True if the strings are near-duplicates, otherwise false.</returns>
-        public bool IsNearDuplicates(string s1, string s2, int shingleSize, double howClose)
-        {
-            double jaccard = Jaccard(s1, s2, shingleSize);
-            return jaccard >= howClose;
-        }
+        //    var returnURL = BackQueues[oldest.Key].Dequeue();
 
-        /// <summary>
-        /// Calculate the Jaccard similarity between two strings.
-        /// </summary>
-        /// <param name="s1"></param>
-        /// <param name="s2"></param>
-        /// <param name="shingleSize">How many words in a shingle.</param>
-        /// <returns>The Jaccard similarity between the two input strings.</returns>
-        public double Jaccard(string s1, string s2, int shingleSize)
-        {
-            var wordsInS1 = getWordsInSentence(s1);
-            var wordsInS2 = getWordsInSentence(s2);
+        //    while (BackQueues[oldest.Key].Count == 0)
+        //    {
+        //        var item = FrontQueueSelector();
+        //        var dom = URLStuff.ExtractDomain(item);
 
-            // Easy solution if shinglesize > words in input
-            if (wordsInS1.Count() < shingleSize || wordsInS2.Count() < shingleSize)
-            {
-                return double.NaN;
-            }
+        //        if (BackQueues.ContainsKey(dom))
+        //        {
+        //            BackQueues[dom].Enqueue(item);
+        //        }
+        //        else
+        //        {
+        //            BackQueues[dom] = new Queue<string>();
+        //            BackQueues[dom].Enqueue(item);
+        //        }
+        //    }
 
-            var shingles1 = GetShingles(wordsInS1, shingleSize);
-            var shingles2 = GetShingles(wordsInS2, shingleSize);
+        //    return returnURL;
+        //}
 
-            int cap = shingles1.Intersect(shingles2).Count();
-            int cup = shingles1.Union(shingles2).Count();
+        //private string FrontQueueSelector()
+        //{
+        //    int rand = new Random().Next(0, FrontQueues.Length);
 
-            return (double)cap / cup;
-        }
+        //    for (int i = 0; i < FrontQueues.Length; i++)
+        //    {
+        //        if (FrontQueues[rand].Count > 0)
+        //        {
+        //            return FrontQueues[rand].Dequeue();
+        //        }
 
-        /// <summary>
-        /// Convert a string to an array of the words in the string.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        private string[] getWordsInSentence(string s)
-        {
-            char[] sep = { ' ', ',', '.' };
-            var words = s.Split(sep).Except(new string[] { "" }).Distinct().ToArray();
-            return words;
-        }
+        //        rand = rand++ % FrontQueues.Length;
+        //    }
 
-        /// <summary>
-        /// Create a set of shingles from a set of words.
-        /// </summary>
-        /// <param name="words">The words to create the shingles from.</param>
-        /// <param name="shingleSize">How many words in a shingle.</param>
-        /// <returns></returns>
-        private IEnumerable<int> GetShingles(string[] words, int shingleSize)
-        {
-            var shingles = new List<int>();
-            StringBuilder builder = new StringBuilder();
+        //    throw new Exception("FrontQueues were empty");
+        //}
 
-            for (int i = 0; i < words.Count() - shingleSize + 1; i++)
-            {
-                for (int j = 0; j < shingleSize; j++)
-                {
-                    builder.Append(words[j + i]);
-                }
+        //private void VisitDomain(string url)
+        //{
+        //    string dom = URLStuff.ExtractDomain(url);
+        //    if (DomainsVisited.ContainsKey(dom))
+        //    {
+        //        DomainsVisited[dom] = DateTime.Now;
+        //    }
+        //    else
+        //    {
+        //        DomainsVisited.Add(dom, DateTime.Now);
+        //    }
+        //}
 
-                shingles.Add(builder.ToString().GetHashCode());
+        //public string DownloadHTML(string url)
+        //{
+        //    url = URLStuff.MakeURLPretty(url);
+        //    WebClient web = new WebClient();
+        //    string dom = URLStuff.ExtractDomain(url);
 
-                // We reuse the StringBuilder, so it must be cleared first.
-                builder.Clear();
-            }
+        //    RobotStuff.DownloadRobotsIfTooOld(url);
 
-            return shingles;
-        }
-        #endregion
+        //    if (RobotStuff.IsVisitAllowed(url))
+        //    {
+        //        VisitDomain(url);
+        //        VisitedURLS.Add(url);
+        //        return web.DownloadString(url);
+        //    }
+        //    else
+        //    {
+        //        return null;
+        //    }
+        //}
 
-        #region robots
-        /// <summary>
-        /// Parse robots.txt from a specific url.
-        /// Assumes robots.txt is properly formatted.
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="robots"></param>
-        /// <returns>A regex to determine if a url is disallowed.</returns>
-        public Regex CannotAccess(string url, IEnumerable<string> robots)
-        {
-            // No restrictions
-            if (robots == null || robots.Count() == 0)
-            {
-                return new Regex(@".*");
-            }
+        //public IEnumerable<string> ExtractLinksFromHTML(string url)
+        //{
+        //    var html = DownloadHTML(url);
 
-            // Find what is disallowed.
-            var disallow = robots.SkipWhile(s => !Regex.IsMatch(s, @"User-Agent: \*", RegexOptions.IgnoreCase)) // Start from user agent *.
-                .TakeWhile(s => !string.IsNullOrWhiteSpace(s)) // Read until blank line (where allow/disallow hopefully ends).
-                .Skip(1) // Skip the user agent string.
-                .Where(s => s.StartsWith("Disallow")) // We only need disallowed stuff.
-                .Select(s => s.Split(':').Last().Trim()); // Select the disallowed stuff.
+        //    if (html == null)
+        //    {
+        //        return Enumerable.Empty<string>();
+        //    }
 
-            if (disallow.Count() == 0)
-            {
-                return new Regex(@".*");
-            }
+        //    var hrefs = html.Split(new string[] { "<a href=\"" }, StringSplitOptions.RemoveEmptyEntries).Skip(1);
 
-            // Build the regex string
-            StringBuilder regPattern = new StringBuilder(url + "(" + disallow.First());
-            foreach (var s in disallow.Skip(1))
-            {
-                regPattern.Append('|');
-                //regPattern.Append(url);
-                regPattern.Append(s);
-            }
-            regPattern.Append(')');
+        //    List<string> urls = new List<string>();
 
-            return new Regex(regPattern.ToString());
-        }
-        #endregion
+        //    foreach (var href in hrefs)
+        //    {
+        //        var link = href.Split('\"').First();
+        //        string fullPath = (link.StartsWith("/") ? url : "") + link;
+        //        if (URLStuff.IsValidURL(fullPath))
+        //        {
+        //            string ur = URLStuff.MakeURLPretty(fullPath);
+
+        //            urls.Add(ur);
+        //        }
+        //    }
+
+        //    return urls;
+        //}
     }
 }
