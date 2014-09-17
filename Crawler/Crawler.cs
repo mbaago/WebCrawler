@@ -10,12 +10,12 @@ namespace Crawler
 {
     public class Crawler
     {
-        public Crawler(int numFrontQueues, int numBackQueues, TimeSpan timebetweenVisits, TimeSpan maxAgeOfRobots, IEnumerable<PrettyURL> seed)
+        public Crawler(int numFrontQueues, int numBackQueues, TimeSpan timebetweenVisits, TimeSpan maxAgeOfRobots, IEnumerable<PrettyURL> seed, IEnumerable<string> stopWords)
         {
             TotalVisits = 1000;
             IAMAROBOTHANDLER = new RobotsStuff(maxAgeOfRobots);
             IAMTHEMERCATOR = new Mercator(numFrontQueues, numBackQueues, timebetweenVisits, seed);
-            IAMTHEINDEXER = new MainIndexer();
+            IAMTHEINDEXER = new MainIndexer(stopWords);
         }
 
         public int TotalVisits { get; set; }
@@ -26,15 +26,25 @@ namespace Crawler
 
         public void CrawlTheWeb()
         {
-            System.Diagnostics.Stopwatch crawlerWatch = new System.Diagnostics.Stopwatch();
-            crawlerWatch.Start();
+            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
+
             var siteContents = DoTheCrawl_GetSitesContents(1);
-            crawlerWatch.Stop();
-            Console.WriteLine(crawlerWatch.Elapsed);
+
+            watch.Stop();
+            Console.WriteLine(watch.Elapsed);
 
 
-            var y = siteContents.First().Value;
-            var x = IAMTHEINDEXER.WordExtractor(y);
+            watch.Restart();
+
+            var a = siteContents.First();
+            var b = IAMTHEINDEXER.Tokenizer(a.Value);
+            var c = IAMTHEINDEXER.StopWordRemover(b);
+            var d = IAMTHEINDEXER.CaseFolder(c);
+            var e = IAMTHEINDEXER.Stemmer(d);
+
+            watch.Stop();
+            Console.WriteLine(watch.Elapsed);
         }
 
         private Dictionary<string, string> DoTheCrawl_GetSitesContents(int numberOfSitesToVisit)
