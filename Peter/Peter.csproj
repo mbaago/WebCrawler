@@ -95,6 +95,10 @@
       <Project>{99dce25f-4286-4d5e-af98-38b932a066b1}</Project>
       <Name>Crawler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\URLStuff\URLStuff.csproj">
+      <Project>{914d0be5-6a56-44ed-aed5-aa512a546a39}</Project>
+      <Name>URLStuff</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />

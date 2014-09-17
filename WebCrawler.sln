@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peter", "Peter\Peter.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indexer", "Indexer\Indexer.csproj", "{F594401E-E82F-4DA1-AFD9-5FD7F3CFE9DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "URLStuff", "URLStuff\URLStuff.csproj", "{914D0BE5-6A56-44ED-AED5-AA512A546A39}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{F594401E-E82F-4DA1-AFD9-5FD7F3CFE9DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F594401E-E82F-4DA1-AFD9-5FD7F3CFE9DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F594401E-E82F-4DA1-AFD9-5FD7F3CFE9DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{914D0BE5-6A56-44ED-AED5-AA512A546A39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{914D0BE5-6A56-44ED-AED5-AA512A546A39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{914D0BE5-6A56-44ED-AED5-AA512A546A39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{914D0BE5-6A56-44ED-AED5-AA512A546A39}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

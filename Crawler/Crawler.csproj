@@ -43,13 +43,16 @@
     <Compile Include="Jaccard.cs" />
     <Compile Include="Mercator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PrettyURL.cs" />
     <Compile Include="RobotsStuff.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indexer\Indexer.csproj">
       <Project>{f594401e-e82f-4da1-afd9-5fd7f3cfe9de}</Project>
       <Name>Indexer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\URLStuff\URLStuff.csproj">
+      <Project>{914d0be5-6a56-44ed-aed5-aa512a546a39}</Project>
+      <Name>URLStuff</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
