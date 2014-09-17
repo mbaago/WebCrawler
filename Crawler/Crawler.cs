@@ -15,6 +15,7 @@ namespace Crawler
             TotalVisits = 1000;
             IAMAROBOTHANDLER = new RobotsStuff(maxAgeOfRobots);
             IAMTHEMERCATOR = new Mercator(numFrontQueues, numBackQueues, timebetweenVisits, seed);
+            IAMTHEINDEXER = new MainIndexer();
         }
 
         public int TotalVisits { get; set; }
@@ -27,12 +28,13 @@ namespace Crawler
         {
             System.Diagnostics.Stopwatch crawlerWatch = new System.Diagnostics.Stopwatch();
             crawlerWatch.Start();
-            var siteContents = DoTheCrawl_GetSitesContents(2);
+            var siteContents = DoTheCrawl_GetSitesContents(1);
             crawlerWatch.Stop();
             Console.WriteLine(crawlerWatch.Elapsed);
 
 
-
+            var y = siteContents.First().Value;
+            var x = IAMTHEINDEXER.WordExtractor(y);
         }
 
         private Dictionary<string, string> DoTheCrawl_GetSitesContents(int numberOfSitesToVisit)

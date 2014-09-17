@@ -7,3 +7,5 @@
 *.suo
 /Peter/bin/Debug
 /Peter/obj/Debug
+/Indexer/bin/Debug
+/Indexer/obj/Debug
