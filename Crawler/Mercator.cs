@@ -30,6 +30,22 @@ namespace Crawler
             {
                 AddURLToFrontQueue(s);
             }
+            //BackQueueRouter();
+
+
+            foreach (var s in seed)
+            {
+                var x = BackQueues.Where(q => q.Value.Count > 0);
+
+                if (BackQueues.Count == backQueues)
+                {
+                    break;
+                }
+
+                BackQueues[s.GetDomain] = new Queue<PrettyURL>();
+                BackQueues[s.GetDomain].Enqueue(s);
+                BackQueueHeapSimulator[s.GetDomain] = DateTime.MinValue;
+            }
             BackQueueRouter();
         }
 
@@ -104,7 +120,7 @@ namespace Crawler
                     BackQueues[url.GetDomain] = new Queue<PrettyURL>();
                     BackQueues[url.GetDomain].Enqueue(url);
 
-                    BackQueueHeapSimulator[url.GetDomain] = DateTime.MinValue;
+                    BackQueueHeapSimulator[url.GetDomain] = DateTime.Now;
                 }
             }
         }
@@ -113,10 +129,14 @@ namespace Crawler
         {
             //CleanupBackQueueHeap();
 
-            var oldestDomain = BackQueueHeapSimulator.OrderBy(t => t.Value).Select(t => t.Key);
-            var domainsInBQ = BackQueues.Keys;
-            var OldestDomainsInBQ = domainsInBQ.Intersect(oldestDomain).First();
-            var oldDomain = BackQueueHeapSimulator.Where(p => p.Key == OldestDomainsInBQ).First();
+            //var oldestDomain = BackQueueHeapSimulator.OrderBy(t => t.Value).Select(t => t.Key);
+            //var domainsInBQ = BackQueues.Keys;
+            //var OldestDomainsInBQ = domainsInBQ.Intersect(oldestDomain).First();
+            //var oldDomain = BackQueueHeapSimulator.Where(p => p.Key == OldestDomainsInBQ).First();
+
+            var oldDomains = BackQueueHeapSimulator.Where(h => BackQueues.Keys.Contains(h.Key));
+            var a = oldDomains.OrderBy(q => q.Value);
+            var oldDomain = a.First();
 
 
             // Wait until old enough.
