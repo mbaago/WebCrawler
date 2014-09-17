@@ -15,21 +15,23 @@ namespace Crawler
             TotalVisits = 1000;
             IAMAROBOTHANDLER = new RobotsStuff(maxAgeOfRobots);
             IAMTHEMERCATOR = new Mercator(numFrontQueues, numBackQueues, timebetweenVisits, seed);
+            SitesContents = new Dictionary<string, string>();
         }
 
         public int TotalVisits { get; set; }
         private RobotsStuff IAMAROBOTHANDLER { get; set; }
         private Mercator IAMTHEMERCATOR { get; set; }
 
+        private Dictionary<string, string> SitesContents { get; set; }
+
         public void CrawlTheWeb()
         {
             var visits = new List<PrettyURL>();
 
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-
             watch.Start();
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 250; i++)
             {
                 var url = IAMTHEMERCATOR.GetURLToCrawl();
                 visits.Add(url);
@@ -39,7 +41,15 @@ namespace Crawler
                 {
                     Console.WriteLine(i + "\t" + url);
 
-                    var links = ExtractLinksFromHTML(url);
+                    var html = DownloadHTML(url);
+                    if (html == null)
+                    {
+                        continue;
+                    }
+
+                    var links = ExtractLinksFromHTML(url, html);
+
+                    SitesContents[url.GetPrettyURL] = html;
 
                     foreach (var link in links)
                     {
@@ -77,15 +87,8 @@ namespace Crawler
             }
         }
 
-        public IEnumerable<PrettyURL> ExtractLinksFromHTML(PrettyURL url)
+        public IEnumerable<PrettyURL> ExtractLinksFromHTML(PrettyURL url, string html)
         {
-            var html = DownloadHTML(url);
-
-            if (html == null)
-            {
-                return Enumerable.Empty<PrettyURL>();
-            }
-
             var hrefs = html.Split(new string[] { "<a href=\"" }, StringSplitOptions.RemoveEmptyEntries).Skip(1);
 
             var urls = new List<PrettyURL>();
@@ -94,7 +97,7 @@ namespace Crawler
             {
                 var link = href.Split('\"').First();
                 string fullPath = (link.StartsWith("/") ? url.GetPrettyURL : "") + link;
-                if (URLStuff.IsValidURL(fullPath))
+                if (PrettyURL.IsValidURL(fullPath))
                 {
                     urls.Add(new PrettyURL(fullPath));
                 }

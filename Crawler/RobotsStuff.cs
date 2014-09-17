@@ -64,7 +64,7 @@ namespace Crawler
                 regPattern.Append(s);
             }
             regPattern.Append(')');
-            regPattern.Replace("*", ".*").Replace(".", "\\.");
+            regPattern.Replace("*", ".*").Replace(".", "\\.").Replace("+", "\\+");
 
             CachedRegexes[url.GetDomain] = new Tuple<DateTime, Regex>(DateTime.Now, new Regex(regPattern.ToString()));
             return CachedRegexes[url.GetDomain].Item2;

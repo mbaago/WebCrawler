@@ -50,13 +50,11 @@ namespace Crawler
         }
 
         public TimeSpan TimeBetweenVisits { get; set; }
-
         private int MaxNumberOfBackQueues { get; set; }
-
         private List<Queue<PrettyURL>> FrontQueues { get; set; }
         private Dictionary<string, Queue<PrettyURL>> BackQueues { get; set; }
         private Dictionary<string, DateTime> BackQueueHeapSimulator { get; set; }
-
+        
         /// <summary>
         /// All URLS, in fq, bq or visited.
         /// </summary>
@@ -72,6 +70,8 @@ namespace Crawler
                     return false;
                 }
             }
+
+            // shingling?
 
             int rand = new Random().Next(0, FrontQueues.Count);
             FrontQueues[rand].Enqueue(url);
@@ -142,17 +142,10 @@ namespace Crawler
             }
 
             var url = BackQueues[oldDomain.Key].Dequeue();
-
-            // Update BackQueue if necessary.
-            //if (BackQueues[url.GetDomain].Count == 0)
-            //{
-            //    BackQueueRouter();
-            //}
-            BackQueueRouter();
-
-            BackQueueHeapSimulator[url.GetDomain] = DateTime.Now;
-
             Debug.WriteLine("GetURLToCrawl: " + url);
+
+            BackQueueRouter();
+            BackQueueHeapSimulator[url.GetDomain] = DateTime.Now;
 
             return url;
         }
