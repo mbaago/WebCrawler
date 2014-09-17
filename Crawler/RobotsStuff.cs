@@ -105,7 +105,7 @@ namespace Crawler
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Robot: Could not download " + url);
-                throw;
+                return "";
             }
         }
 

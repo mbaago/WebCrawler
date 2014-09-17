@@ -105,7 +105,7 @@ namespace Crawler
                 BackQueues.Remove(q);
             }
 
-            while (BackQueues.Count < MaxNumberOfBackQueues)
+            while (BackQueues.Count < MaxNumberOfBackQueues && FrontQueues.Where(q => q.Count > 0).Count() > 0)
             {
                 var url = FrontQueueSelector();
 
@@ -127,17 +127,9 @@ namespace Crawler
 
         public PrettyURL GetURLToCrawl()
         {
-            //CleanupBackQueueHeap();
-
-            //var oldestDomain = BackQueueHeapSimulator.OrderBy(t => t.Value).Select(t => t.Key);
-            //var domainsInBQ = BackQueues.Keys;
-            //var OldestDomainsInBQ = domainsInBQ.Intersect(oldestDomain).First();
-            //var oldDomain = BackQueueHeapSimulator.Where(p => p.Key == OldestDomainsInBQ).First();
-
             var oldDomains = BackQueueHeapSimulator.Where(h => BackQueues.Keys.Contains(h.Key));
             var a = oldDomains.OrderBy(q => q.Value);
             var oldDomain = a.First();
-
 
             // Wait until old enough.
             if (DateTime.Now - oldDomain.Value < TimeBetweenVisits)

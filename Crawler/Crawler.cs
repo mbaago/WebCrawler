@@ -25,7 +25,7 @@ namespace Crawler
         {
             var visits = new List<PrettyURL>();
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 10; i++)
             {
                 var url = IAMTHEMERCATOR.GetURLToCrawl();
                 visits.Add(url);
@@ -33,6 +33,8 @@ namespace Crawler
                 // check with robot
                 if (IAMAROBOTHANDLER.IsVisitAllowed(url))
                 {
+                    Console.WriteLine(i + "\t" + url);
+
                     var links = ExtractLinksFromHTML(url);
 
                     foreach (var link in links)
@@ -47,7 +49,7 @@ namespace Crawler
         public string DownloadHTML(PrettyURL url)
         {
             WebClient web = new WebClient();
-            
+
             if (IAMAROBOTHANDLER.IsVisitAllowed(url))
             {
                 try
