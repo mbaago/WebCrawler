@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using URLStuff;
 
 namespace Indexer
 {
@@ -13,6 +14,24 @@ namespace Indexer
             StopWords = stopWords ?? Enumerable.Empty<string>();
         }
         public IEnumerable<string> StopWords { get; set; }
+
+        public Dictionary<string, List<string>> CreateInverseIndex(Dictionary<string, string> siteWithContent)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+
+
+            // in progress, does not do what it should yet.
+            foreach (var site in siteWithContent)
+            {
+                var a = Tokenizer(site.Value);
+                var b = StopWordRemover(a);
+                var c = CaseFolder(b);
+                var d = Stemmer(c);
+                result.Add(site.Key, d.ToList());
+            }
+
+            return result;
+        }
 
         public IEnumerable<string> Tokenizer(string html)
         {

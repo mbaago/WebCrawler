@@ -30,25 +30,28 @@ namespace Crawler
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             watch.Start();
 
-            var siteContents = DoTheCrawl_GetSitesContents(1);
+            Console.WriteLine("Downloading");
+            var siteContents = DoTheCrawl_GetSitesContents(5, false);
 
             watch.Stop();
-            Console.WriteLine(watch.Elapsed);
+            //Console.WriteLine(watch.Elapsed);
 
 
             watch.Restart();
 
-            var a = siteContents.First();
-            var b = IAMTHEINDEXER.Tokenizer(a.Value);
-            var c = IAMTHEINDEXER.StopWordRemover(b);
-            var d = IAMTHEINDEXER.CaseFolder(c);
-            var e = IAMTHEINDEXER.Stemmer(d);
+            //var a = siteContents.First();
+            //var b = IAMTHEINDEXER.Tokenizer(a.Value);
+            //var c = IAMTHEINDEXER.StopWordRemover(b);
+            //var d = IAMTHEINDEXER.CaseFolder(c);
+            //var e = IAMTHEINDEXER.Stemmer(d);
+
+            var index = IAMTHEINDEXER.CreateInverseIndex(siteContents);
 
             watch.Stop();
             Console.WriteLine(watch.Elapsed);
         }
 
-        private Dictionary<string, string> DoTheCrawl_GetSitesContents(int numberOfSitesToVisit)
+        private Dictionary<string, string> DoTheCrawl_GetSitesContents(int numberOfSitesToVisit, bool print)
         {
             Dictionary<string, string> SitesContents = new Dictionary<string, string>();
             for (int i = 0; i < numberOfSitesToVisit; i++)
@@ -58,7 +61,10 @@ namespace Crawler
                 // check with robot
                 if (IAMAROBOTHANDLER.IsVisitAllowed(url))
                 {
-                    Console.WriteLine(i + "\t" + url);
+                    if (print)
+                    {
+                        Console.WriteLine(i + "\t" + url);
+                    }
 
                     var html = DownloadHTML(url);
                     if (html == null)
