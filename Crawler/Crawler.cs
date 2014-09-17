@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 using System.Net;
+using Indexer;
 
 namespace Crawler
 {
@@ -15,26 +15,32 @@ namespace Crawler
             TotalVisits = 1000;
             IAMAROBOTHANDLER = new RobotsStuff(maxAgeOfRobots);
             IAMTHEMERCATOR = new Mercator(numFrontQueues, numBackQueues, timebetweenVisits, seed);
-            SitesContents = new Dictionary<string, string>();
         }
 
         public int TotalVisits { get; set; }
         private RobotsStuff IAMAROBOTHANDLER { get; set; }
         private Mercator IAMTHEMERCATOR { get; set; }
+        private MainIndexer IAMTHEINDEXER { get; set; }
 
-        private Dictionary<string, string> SitesContents { get; set; }
 
         public void CrawlTheWeb()
         {
-            var visits = new List<PrettyURL>();
+            System.Diagnostics.Stopwatch crawlerWatch = new System.Diagnostics.Stopwatch();
+            crawlerWatch.Start();
+            var siteContents = DoTheCrawl_GetSitesContents(2);
+            crawlerWatch.Stop();
+            Console.WriteLine(crawlerWatch.Elapsed);
 
-            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-            watch.Start();
 
-            for (int i = 0; i < 250; i++)
+
+        }
+
+        private Dictionary<string, string> DoTheCrawl_GetSitesContents(int numberOfSitesToVisit)
+        {
+            Dictionary<string, string> SitesContents = new Dictionary<string, string>();
+            for (int i = 0; i < numberOfSitesToVisit; i++)
             {
                 var url = IAMTHEMERCATOR.GetURLToCrawl();
-                visits.Add(url);
 
                 // check with robot
                 if (IAMAROBOTHANDLER.IsVisitAllowed(url))
@@ -58,9 +64,7 @@ namespace Crawler
                 }
             }
 
-            watch.Stop();
-
-            Console.WriteLine(watch.Elapsed);
+            return SitesContents;
         }
 
 

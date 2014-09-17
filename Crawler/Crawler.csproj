@@ -46,6 +46,12 @@
     <Compile Include="PrettyURL.cs" />
     <Compile Include="RobotsStuff.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indexer\Indexer.csproj">
+      <Project>{f594401e-e82f-4da1-afd9-5fd7f3cfe9de}</Project>
+      <Name>Indexer</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crawler", "Crawler\Crawler.csproj", "{99DCE25F-4286-4D5E-AF98-38B932A066B1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peter", "Peter\Peter.csproj", "{C8964512-4D00-4BD3-AD89-B58D25EB327D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indexer", "Indexer\Indexer.csproj", "{F594401E-E82F-4DA1-AFD9-5FD7F3CFE9DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +23,10 @@ Global
 		{C8964512-4D00-4BD3-AD89-B58D25EB327D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8964512-4D00-4BD3-AD89-B58D25EB327D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8964512-4D00-4BD3-AD89-B58D25EB327D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F594401E-E82F-4DA1-AFD9-5FD7F3CFE9DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F594401E-E82F-4DA1-AFD9-5FD7F3CFE9DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F594401E-E82F-4DA1-AFD9-5FD7F3CFE9DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F594401E-E82F-4DA1-AFD9-5FD7F3CFE9DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
