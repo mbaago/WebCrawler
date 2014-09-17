@@ -93,7 +93,7 @@ namespace Crawler
             {
                 var url = FrontQueueSelector();
 
-                if (BackQueues.Keys.Contains(url.GetDomain))
+                if (BackQueues.ContainsKey(url.GetDomain))
                 {
                     // We already have a backqueue for this domain.
                     BackQueues[url.GetDomain].Enqueue(url);
@@ -104,7 +104,7 @@ namespace Crawler
                     BackQueues[url.GetDomain] = new Queue<PrettyURL>();
                     BackQueues[url.GetDomain].Enqueue(url);
 
-                    BackQueueHeapSimulator[url.GetDomain] = DateTime.Now;
+                    BackQueueHeapSimulator[url.GetDomain] = DateTime.MinValue;
                 }
             }
         }

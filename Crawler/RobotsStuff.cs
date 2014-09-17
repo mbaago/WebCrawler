@@ -12,7 +12,7 @@ namespace Crawler
         public RobotsStuff(TimeSpan maxAge)
         {
             MaxAge = maxAge;
-            Robots = new Dictionary<string, Tuple<DateTime, string[]>>();
+            CachedRobots = new Dictionary<string, Tuple<DateTime, string[]>>();
             CachedRegexes = new Dictionary<string, Tuple<DateTime, Regex>>();
         }
 
@@ -22,7 +22,7 @@ namespace Crawler
         ///     key: timestamp
         ///     value: file contents
         /// </summary>
-        private Dictionary<string, Tuple<DateTime, string[]>> Robots { get; set; }
+        private Dictionary<string, Tuple<DateTime, string[]>> CachedRobots { get; set; }
 
         private Dictionary<string, Tuple<DateTime, Regex>> CachedRegexes { get; set; }
 
@@ -38,10 +38,10 @@ namespace Crawler
         /// <param name="url"></param>
         /// <param name="robotsContent"></param>
         /// <returns>A regex to determine if a url is disallowed.</returns>
-        public Regex IsURLInDisallowedList(PrettyURL url)
+        private Regex IsURLInDisallowedList(PrettyURL url)
         {
             DownloadRobotsIfTooOld(url);
-            var robotsContent = Robots[url.GetDomain].Item2;
+            var robotsContent = CachedRobots[url.GetDomain].Item2;
             if (CachedRegexes.ContainsKey(url.GetDomain) && DateTime.Now - CachedRegexes[url.GetDomain].Item1 < MaxAge)
             {
                 return CachedRegexes[url.GetDomain].Item2;
@@ -89,19 +89,19 @@ namespace Crawler
 
         private IEnumerable<string> GetRobotContent_DownloadsIfNecessary(PrettyURL url)
         {
-            if (!Robots.ContainsKey(url.GetDomain))
+            if (!CachedRobots.ContainsKey(url.GetDomain))
             {
                 DownloadRobot_AddToRobots(url);
             }
 
-            return Robots[url.GetDomain].Item2;
+            return CachedRobots[url.GetDomain].Item2;
         }
 
         public void DownloadRobotsIfTooOld(PrettyURL url)
         {
-            if (Robots.ContainsKey(url.GetDomain))
+            if (CachedRobots.ContainsKey(url.GetDomain))
             {
-                if (DateTime.Now - Robots[url.GetDomain].Item1 > MaxAge)
+                if (DateTime.Now - CachedRobots[url.GetDomain].Item1 > MaxAge)
                 {
                     DownloadRobot_AddToRobots(url);
                 }
@@ -114,11 +114,11 @@ namespace Crawler
 
         private void DownloadRobot_AddToRobots(PrettyURL url)
         {
-            string robot = url.GetDomain + "/" + "robots.txt";
+            string robot = "http://" + url.GetDomain + "/" + "robots.txt";
             try
             {
                 string content = new System.Net.WebClient().DownloadString(robot);
-                Robots[url.GetDomain] = new Tuple<DateTime, string[]>(DateTime.Now, robot.Split('\n'));
+                CachedRobots[url.GetDomain] = new Tuple<DateTime, string[]>(DateTime.Now, robot.Split('\n'));
             }
             catch (Exception ex)
             {
@@ -129,7 +129,7 @@ namespace Crawler
 
         public void RemoveRobot(PrettyURL url)
         {
-            Robots.Remove(url.GetDomain);
+            CachedRobots.Remove(url.GetDomain);
             CachedRegexes.Remove(url.GetDomain);
         }
     }
