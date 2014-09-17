@@ -12,17 +12,8 @@ namespace Crawler
         public RobotsStuff(TimeSpan maxAge)
         {
             MaxAge = maxAge;
-            CachedRobots = new Dictionary<string, Tuple<DateTime, string[]>>();
             CachedRegexes = new Dictionary<string, Tuple<DateTime, Regex>>();
         }
-
-        /// <summary>
-        /// key: domain
-        /// value:
-        ///     key: timestamp
-        ///     value: file contents
-        /// </summary>
-        private Dictionary<string, Tuple<DateTime, string[]>> CachedRobots { get; set; }
 
         private Dictionary<string, Tuple<DateTime, Regex>> CachedRegexes { get; set; }
 
@@ -38,10 +29,8 @@ namespace Crawler
         /// <param name="url"></param>
         /// <param name="robotsContent"></param>
         /// <returns>A regex to determine if a url is disallowed.</returns>
-        private Regex IsURLInDisallowedList(PrettyURL url)
+        private Regex CalcRobotRegexForDomain(PrettyURL url, IEnumerable<string> robotsContent)
         {
-            DownloadRobotsIfTooOld(url);
-            var robotsContent = CachedRobots[url.GetDomain].Item2;
             if (CachedRegexes.ContainsKey(url.GetDomain) && DateTime.Now - CachedRegexes[url.GetDomain].Item1 < MaxAge)
             {
                 return CachedRegexes[url.GetDomain].Item2;
@@ -83,53 +72,45 @@ namespace Crawler
 
         public bool IsVisitAllowed(PrettyURL url)
         {
-            var robotContent = GetRobotContent_DownloadsIfNecessary(url);
-            return !IsURLInDisallowedList(url).IsMatch(url.GetPrettyURL);
-        }
-
-        private IEnumerable<string> GetRobotContent_DownloadsIfNecessary(PrettyURL url)
-        {
-            if (!CachedRobots.ContainsKey(url.GetDomain))
+            if (CachedRegexes.ContainsKey(url.GetDomain))
             {
-                DownloadRobot_AddToRobots(url);
-            }
-
-            return CachedRobots[url.GetDomain].Item2;
-        }
-
-        public void DownloadRobotsIfTooOld(PrettyURL url)
-        {
-            if (CachedRobots.ContainsKey(url.GetDomain))
-            {
-                if (DateTime.Now - CachedRobots[url.GetDomain].Item1 > MaxAge)
+                // Too old?
+                if (DateTime.Now - CachedRegexes[url.GetDomain].Item1 > MaxAge)
                 {
-                    DownloadRobot_AddToRobots(url);
+                    System.Diagnostics.Debug.WriteLine("Old robot: " + url, "ROBOT");
+                    var robotContent = DownloadRobotContent(url).Split('\n');
+                    var regex = CalcRobotRegexForDomain(url, robotContent);
+                    CachedRegexes[url.GetDomain] = new Tuple<DateTime, Regex>(DateTime.Now, regex);
                 }
             }
             else
             {
-                DownloadRobot_AddToRobots(url);
+                var robotContent = DownloadRobotContent(url).Split('\n');
+                var regex = CalcRobotRegexForDomain(url, robotContent);
+                CachedRegexes[url.GetDomain] = new Tuple<DateTime, Regex>(DateTime.Now, regex);
             }
+
+            return !CachedRegexes[url.GetDomain].Item2.IsMatch(url.GetPrettyURL);
         }
 
-        private void DownloadRobot_AddToRobots(PrettyURL url)
+        private string DownloadRobotContent(PrettyURL url)
         {
-            string robot = "http://" + url.GetDomain + "/" + "robots.txt";
             try
             {
-                string content = new System.Net.WebClient().DownloadString(robot);
-                CachedRobots[url.GetDomain] = new Tuple<DateTime, string[]>(DateTime.Now, robot.Split('\n'));
+                string robot = "http://" + url.GetDomain + "/" + "robots.txt";
+                System.Diagnostics.Debug.WriteLine("Robot: Downloading " + robot);
+                string robotContent = new System.Net.WebClient().DownloadString(robot);
+                return robotContent;
             }
             catch (Exception ex)
             {
-                // tough luck
-                System.Diagnostics.Debug.WriteLine("Robot: Error downloading " + url);
+                System.Diagnostics.Debug.WriteLine("Robot: Could not download " + url);
+                throw;
             }
         }
 
         public void RemoveRobot(PrettyURL url)
         {
-            CachedRobots.Remove(url.GetDomain);
             CachedRegexes.Remove(url.GetDomain);
         }
     }

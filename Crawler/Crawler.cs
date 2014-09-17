@@ -10,23 +10,10 @@ namespace Crawler
 {
     public class Crawler
     {
-        public Crawler(int numFrontQueues, TimeSpan timebetweenVisits, IEnumerable<PrettyURL> seed)
+        public Crawler(int numFrontQueues, TimeSpan timebetweenVisits, TimeSpan maxAgeOfRobots, IEnumerable<PrettyURL> seed)
         {
-            //MaxNumberOfBackQueues = 3;
-            //FrontQueues = new Queue<string>[numFrontQueues];
-            //for (int i = 0; i < FrontQueues.Length; i++)
-            //{
-            //    FrontQueues[i] = new Queue<string>();
-            //}
-            //BackQueues = new Dictionary<string, Queue<string>>();
-            //DomainsVisited = new Dictionary<string, DateTime>();
-
-            //VisitedURLS = new List<string>();
-
-            //IAMAROBOTHANDLER = new RobotsStuff(TimeSpan.FromSeconds(60));
-
             TotalVisits = 1000;
-            IAMAROBOTHANDLER = new RobotsStuff(timebetweenVisits);
+            IAMAROBOTHANDLER = new RobotsStuff(maxAgeOfRobots);
             IAMTHEMERCATOR = new Mercator(numFrontQueues, 3, timebetweenVisits, seed);
         }
 
@@ -60,9 +47,7 @@ namespace Crawler
         public string DownloadHTML(PrettyURL url)
         {
             WebClient web = new WebClient();
-
-            IAMAROBOTHANDLER.DownloadRobotsIfTooOld(url);
-
+            
             if (IAMAROBOTHANDLER.IsVisitAllowed(url))
             {
                 try
