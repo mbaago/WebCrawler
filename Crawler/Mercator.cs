@@ -144,10 +144,11 @@ namespace Crawler
             var url = BackQueues[oldDomain.Key].Dequeue();
 
             // Update BackQueue if necessary.
-            if (BackQueues[url.GetDomain].Count == 0)
-            {
-                BackQueueRouter();
-            }
+            //if (BackQueues[url.GetDomain].Count == 0)
+            //{
+            //    BackQueueRouter();
+            //}
+            BackQueueRouter();
 
             BackQueueHeapSimulator[url.GetDomain] = DateTime.Now;
 

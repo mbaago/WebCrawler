@@ -10,11 +10,11 @@ namespace Crawler
 {
     public class Crawler
     {
-        public Crawler(int numFrontQueues, TimeSpan timebetweenVisits, TimeSpan maxAgeOfRobots, IEnumerable<PrettyURL> seed)
+        public Crawler(int numFrontQueues, int numBackQueues, TimeSpan timebetweenVisits, TimeSpan maxAgeOfRobots, IEnumerable<PrettyURL> seed)
         {
             TotalVisits = 1000;
             IAMAROBOTHANDLER = new RobotsStuff(maxAgeOfRobots);
-            IAMTHEMERCATOR = new Mercator(numFrontQueues, 3, timebetweenVisits, seed);
+            IAMTHEMERCATOR = new Mercator(numFrontQueues, numBackQueues, timebetweenVisits, seed);
         }
 
         public int TotalVisits { get; set; }
@@ -25,7 +25,11 @@ namespace Crawler
         {
             var visits = new List<PrettyURL>();
 
-            for (int i = 0; i < 10; i++)
+            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+
+            watch.Start();
+
+            for (int i = 0; i < 100; i++)
             {
                 var url = IAMTHEMERCATOR.GetURLToCrawl();
                 visits.Add(url);
@@ -43,6 +47,10 @@ namespace Crawler
                     }
                 }
             }
+
+            watch.Stop();
+
+            Console.WriteLine(watch.Elapsed);
         }
 
 
