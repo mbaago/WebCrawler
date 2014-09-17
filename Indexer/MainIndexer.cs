@@ -19,7 +19,6 @@ namespace Indexer
         {
             Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
 
-
             // in progress, does not do what it should yet.
             foreach (var site in siteWithContent)
             {
@@ -27,7 +26,15 @@ namespace Indexer
                 var b = StopWordRemover(a);
                 var c = CaseFolder(b);
                 var d = Stemmer(c);
-                result.Add(site.Key, d.ToList());
+
+                foreach (var word in d)
+                {
+                    if (!result.ContainsKey(word))
+                    {
+                        result.Add(word, new List<string>());
+                    }
+                    result[word].Add(site.Key);
+                }
             }
 
             return result;

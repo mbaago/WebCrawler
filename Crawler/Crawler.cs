@@ -13,13 +13,11 @@ namespace Crawler
     {
         public Crawler(int numFrontQueues, int numBackQueues, TimeSpan timebetweenVisits, TimeSpan maxAgeOfRobots, IEnumerable<PrettyURL> seed, IEnumerable<string> stopWords)
         {
-            TotalVisits = 1000;
             IAMAROBOTHANDLER = new RobotsStuff(maxAgeOfRobots);
             IAMTHEMERCATOR = new Mercator(numFrontQueues, numBackQueues, timebetweenVisits, seed);
             IAMTHEINDEXER = new MainIndexer(stopWords);
         }
 
-        public int TotalVisits { get; set; }
         private RobotsStuff IAMAROBOTHANDLER { get; set; }
         private Mercator IAMTHEMERCATOR { get; set; }
         private MainIndexer IAMTHEINDEXER { get; set; }
@@ -31,19 +29,13 @@ namespace Crawler
             watch.Start();
 
             Console.WriteLine("Downloading");
-            var siteContents = DoTheCrawl_GetSitesContents(5, false);
+            var siteContents = DoTheCrawl_GetSitesContents(10, false);
 
             watch.Stop();
             //Console.WriteLine(watch.Elapsed);
 
 
             watch.Restart();
-
-            //var a = siteContents.First();
-            //var b = IAMTHEINDEXER.Tokenizer(a.Value);
-            //var c = IAMTHEINDEXER.StopWordRemover(b);
-            //var d = IAMTHEINDEXER.CaseFolder(c);
-            //var e = IAMTHEINDEXER.Stemmer(d);
 
             var index = IAMTHEINDEXER.CreateInverseIndex(siteContents);
 

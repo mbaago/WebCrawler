@@ -24,15 +24,8 @@ namespace Crawler
 
             TimeBetweenVisits = timeBetweenVisits;
 
-            AllURLS = new List<PrettyURL>();
-
-            // Apply the seed
-            foreach (var s in seed)
-            {
-                AddURLToFrontQueue(s);
-            }
-            //BackQueueRouter();
-
+            AllURLS = new List<string>();
+            
 
             foreach (var s in seed)
             {
@@ -46,8 +39,10 @@ namespace Crawler
                 BackQueues[s.GetDomain] = new Queue<PrettyURL>();
                 BackQueues[s.GetDomain].Enqueue(s);
                 BackQueueHeapSimulator[s.GetDomain] = DateTime.MinValue;
+
+                // We don't want to visit sites in the seed again -.-
+                AllURLS.Add(s.GetPrettyURL);
             }
-            BackQueueRouter();
         }
 
         public TimeSpan TimeBetweenVisits { get; set; }
@@ -59,24 +54,21 @@ namespace Crawler
         /// <summary>
         /// All URLS, in fq, bq or visited.
         /// </summary>
-        private List<PrettyURL> AllURLS { get; set; }
+        private List<string> AllURLS { get; set; }
 
         public bool AddURLToFrontQueue(PrettyURL url)
         {
             // tjek om allerede besøgt
-            foreach (var u in AllURLS)
+            if (AllURLS.Contains(url.GetPrettyURL))
             {
-                if (u.GetPrettyURL == url.GetPrettyURL)
-                {
-                    return false;
-                }
+                return false;
             }
 
             // shingling?
 
             int rand = new Random().Next(0, FrontQueues.Count);
             FrontQueues[rand].Enqueue(url);
-            AllURLS.Add(url);
+            AllURLS.Add(url.GetPrettyURL);
 
             return true;
         }
