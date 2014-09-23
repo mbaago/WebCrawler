@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Peter
+namespace PetersWeb
 {
-    class DB
+    public class DB
     {
-
-
         public void insertNew(string www, string html)
         {
             DBContextDataContext dbCon = new DBContextDataContext();
@@ -32,5 +30,5 @@ namespace Peter
         }
     }
 
-   
+
 }

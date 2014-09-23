@@ -7,6 +7,7 @@ using System.Net;
 using Indexer;
 using URLStuff;
 using System.Diagnostics;
+using PetersWeb;
 
 namespace Crawler
 {
@@ -23,6 +24,7 @@ namespace Crawler
         private Mercator IAMTHEMERCATOR { get; set; }
         private MainIndexer IAMTHEINDEXER { get; set; }
 
+        private DB DataBase = new DB();
 
         public void CrawlTheWeb()
         {
@@ -30,7 +32,7 @@ namespace Crawler
             watch.Start();
 
             Console.WriteLine("Downloading");
-            var siteContents = DoTheCrawl_GetSitesContents(100, false);
+            var siteContents = DoTheCrawl_GetSitesContents(10, false);
 
             watch.Stop();
             //Console.WriteLine(regexCalcWatch.Elapsed);
@@ -68,9 +70,12 @@ namespace Crawler
                         continue;
                     }
 
-                    var links = ExtractLinksFromHTML(url, html);
-
                     SitesContents[url.GetPrettyURL] = html;
+
+                    DataBase.insertNew(url.GetPrettyURL, html);
+                    
+
+                    var links = ExtractLinksFromHTML(url, html);
 
                     foreach (var link in links)
                     {
