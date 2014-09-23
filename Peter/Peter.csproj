@@ -85,6 +85,10 @@
       <Project>{99dce25f-4286-4d5e-af98-38b932a066b1}</Project>
       <Name>Crawler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Indexer\Indexer.csproj">
+      <Project>{f594401e-e82f-4da1-afd9-5fd7f3cfe9de}</Project>
+      <Name>Indexer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PetersWeb\PetersWeb.csproj">
       <Project>{c4358e49-d677-40b4-b3a1-4121366244ac}</Project>
       <Name>PetersWeb</Name>

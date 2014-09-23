@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Crawler;
 using URLStuff;
 using PetersWeb;
+using Indexer;
 
 namespace Peter
 {
@@ -14,29 +15,29 @@ namespace Peter
         static DBContextDataContext dbCon = new DBContextDataContext();
         static void Main(string[] args)
         {
-                
-            //Crawler.Crawler craw = new Crawler.Crawler(10);
-
-            //string url = "httP://rDddit.com/r/stupid/%a0%05%7e/";
-
-            //string res = craw.MakeURLPretty(url);
-
-            //Console.WriteLine(res);
-
-            test();
             Console.WriteLine("Started");
 
+            int sitesToCrawl = 100;
             int numFrontQueues = 10;
             int numBackQueues = 3;
             TimeSpan timeBetweenHits = TimeSpan.FromSeconds(1);
             TimeSpan maxRobotAge = TimeSpan.FromMinutes(5);
             var seed = new PrettyURL[] { new PrettyURL("newz.dk"), new PrettyURL("reddit.com"), new PrettyURL("politikken.dk") };
+
+            Crawler.Crawler crawler = new Crawler.Crawler(numFrontQueues, numBackQueues, timeBetweenHits, maxRobotAge, seed);
+            var sites = crawler.CrawlTheWeb(sitesToCrawl);
+            Console.WriteLine("Completed downloading");
+
+            Console.WriteLine("Inserting into db");
+
+            Console.WriteLine("db insertion completed");
+
+            Console.WriteLine("Creating index");
             var stopWords = new string[] { };
+            MainIndexer indexer = new MainIndexer(stopWords);
+            indexer.CreateInverseIndex();
+            Console.WriteLine("Indexing completed");
 
-            Crawler.Crawler crawler = new Crawler.Crawler(numFrontQueues, numBackQueues, timeBetweenHits, maxRobotAge, seed, stopWords);
-            crawler.CrawlTheWeb();
-
-            Console.WriteLine("Completed");
             Console.ReadKey();
         }
 
@@ -60,7 +61,7 @@ namespace Peter
             //{
             //    Console.WriteLine(u.id + " " + u.url1);
             //}
-            
+
         }
     }
 }

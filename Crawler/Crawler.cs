@@ -13,11 +13,10 @@ namespace Crawler
 {
     public class Crawler
     {
-        public Crawler(int numFrontQueues, int numBackQueues, TimeSpan timebetweenVisits, TimeSpan maxAgeOfRobots, IEnumerable<PrettyURL> seed, IEnumerable<string> stopWords)
+        public Crawler(int numFrontQueues, int numBackQueues, TimeSpan timebetweenVisits, TimeSpan maxAgeOfRobots, IEnumerable<PrettyURL> seed)
         {
             IAMAROBOTHANDLER = new RobotsStuff(maxAgeOfRobots);
             IAMTHEMERCATOR = new Mercator(numFrontQueues, numBackQueues, timebetweenVisits, seed);
-            IAMTHEINDEXER = new MainIndexer(stopWords);
         }
 
         private RobotsStuff IAMAROBOTHANDLER { get; set; }
@@ -26,30 +25,24 @@ namespace Crawler
 
         private DB DataBase = new DB();
 
-        public void CrawlTheWeb()
+        public Dictionary<string, string> CrawlTheWeb(int getSites)
         {
-            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-            watch.Start();
+            //System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+            //watch.Start();
 
             Console.WriteLine("Downloading");
-            var siteContents = DoTheCrawl_GetSitesContents(10, false);
+            return DoTheCrawl_SaveToDB(getSites, false);
 
-            watch.Stop();
-            //Console.WriteLine(regexCalcWatch.Elapsed);
-
-
-            watch.Restart();
-            var index = IAMTHEINDEXER.CreateInverseIndex(siteContents);
-            watch.Stop();
-            Console.WriteLine("Index creation: " + watch.Elapsed);
+            //watch.Stop();
         }
 
-        private Dictionary<string, string> DoTheCrawl_GetSitesContents(int numberOfSitesToVisit, bool print)
+        private Dictionary<string, string> DoTheCrawl_SaveToDB(int numberOfSitesToVisit, bool print)
         {
             Stopwatch watch = new Stopwatch();
             Dictionary<string, TimeSpan> times = new Dictionary<string, TimeSpan>();
 
-            Dictionary<string, string> SitesContents = new Dictionary<string, string>();
+            Dictionary<string, string> result = new Dictionary<string, string>();
+
             for (int i = 0; i < numberOfSitesToVisit; i++)
             {
                 watch.Restart();
@@ -70,13 +63,10 @@ namespace Crawler
                         continue;
                     }
 
-                    SitesContents[url.GetPrettyURL] = html;
-
-                    DataBase.insertNew(url.GetPrettyURL, html);
-                    
+                    //DataBase.insertNew(url.GetPrettyURL, html);
+                    result[url.GetPrettyURL] = html;
 
                     var links = ExtractLinksFromHTML(url, html);
-
                     foreach (var link in links)
                     {
                         IAMTHEMERCATOR.AddURLToFrontQueue(link);
@@ -88,7 +78,7 @@ namespace Crawler
                 Console.WriteLine(i + "\t" + (int)watch.Elapsed.TotalMilliseconds + "\t" + url);
             }
 
-            return SitesContents;
+            return result;
         }
 
 

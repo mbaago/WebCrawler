@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using URLStuff;
+using PetersWeb;
 
 namespace Indexer
 {
@@ -15,28 +16,31 @@ namespace Indexer
         }
 
         public IEnumerable<string> StopWords { get; set; }
+        private DB DataBase = new DB();
 
-        public Dictionary<string, List<string>> CreateInverseIndex(Dictionary<string, string> siteWithContent)
+        public Dictionary<string, List<string>> CreateInverseIndex()
         {
+            // get from db
+
             Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
 
             // in progress, does not do what it should yet.
-            foreach (var site in siteWithContent)
-            {
-                var a = Tokenizer(site.Value);
-                var b = StopWordRemover(a).ToArray();
-                var c = CaseFolder(b).ToArray();
-                var d = Stemmer(c).ToArray();
+            //foreach (var site in siteWithContent)
+            //{
+            //    var a = Tokenizer(site.Value);
+            //    var b = StopWordRemover(a).ToArray();
+            //    var c = CaseFolder(b).ToArray();
+            //    var d = Stemmer(c).ToArray();
 
-                foreach (var word in d)
-                {
-                    if (!result.ContainsKey(word))
-                    {
-                        result.Add(word, new List<string>());
-                    }
-                    result[word].Add(site.Key);
-                }
-            }
+            //    foreach (var word in d)
+            //    {
+            //        if (!result.ContainsKey(word))
+            //        {
+            //            result.Add(word, new List<string>());
+            //        }
+            //        result[word].Add(site.Key);
+            //    }
+            //}
 
             return result;
         }
