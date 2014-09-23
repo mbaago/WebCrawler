@@ -9,7 +9,7 @@ namespace Peter
 {
     class Program
     {
-        static DataClasses1DataContext db = new DataClasses1DataContext();
+        static DBContextDataContext dbCon = new DBContextDataContext();
         static void Main(string[] args)
         {
                 
@@ -34,21 +34,24 @@ namespace Peter
 
         static void test()
         {
-            Page[] pagesA = { new Page { url = "www", html = "www" }, new Page { url = "www.reddit.com", html = "www" } };
-            Page page = new Page { url = "www", html = "www" };
-            //Page page2 = new Page { url = "www.reddit.com", html = "www" };
-            //db.Pages.InsertAllOnSubmit(pagesA);
-            db.Pages.InsertOnSubmit(page);
+            DB db = new DB();
 
-            db.SubmitChanges();
+            db.insertNew("www.reddit.com", "<p>bla bla bla</p>");
 
-            IEnumerable<Page> pages = (from p in db.Pages
-                                       select p);
+            DBContextDataContext dbCon = new DBContextDataContext();
 
-            foreach (Page p in pages)
-            {
-                Console.WriteLine(p.Id + " " + p.url);
-            }
+            Page page = db.getPageOnUrl("www.reddit.com");
+
+            Console.WriteLine(page.id + " " + page.url + " " + page.html);
+
+            //var result = from u in dbCon.Urls
+            //             select u;
+
+
+            //foreach (Url u in result)
+            //{
+            //    Console.WriteLine(u.id + " " + u.url1);
+            //}
             
         }
     }
