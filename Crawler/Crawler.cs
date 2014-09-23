@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using Indexer;
 using URLStuff;
+using System.Diagnostics;
 
 namespace Crawler
 {
@@ -29,25 +30,30 @@ namespace Crawler
             watch.Start();
 
             Console.WriteLine("Downloading");
-            var siteContents = DoTheCrawl_GetSitesContents(10, false);
+            var siteContents = DoTheCrawl_GetSitesContents(2, false);
 
             watch.Stop();
-            //Console.WriteLine(watch.Elapsed);
+            //Console.WriteLine(regexCalcWatch.Elapsed);
 
 
             watch.Restart();
-
             var index = IAMTHEINDEXER.CreateInverseIndex(siteContents);
-
             watch.Stop();
-            Console.WriteLine(watch.Elapsed);
+            Console.WriteLine("Index creation: " + watch.Elapsed);
+
+
         }
 
         private Dictionary<string, string> DoTheCrawl_GetSitesContents(int numberOfSitesToVisit, bool print)
         {
+            Stopwatch watch = new Stopwatch();
+            Dictionary<string, TimeSpan> times = new Dictionary<string, TimeSpan>();
+
             Dictionary<string, string> SitesContents = new Dictionary<string, string>();
             for (int i = 0; i < numberOfSitesToVisit; i++)
             {
+                watch.Restart();
+
                 var url = IAMTHEMERCATOR.GetURLToCrawl();
 
                 // check with robot
@@ -73,6 +79,10 @@ namespace Crawler
                         IAMTHEMERCATOR.AddURLToFrontQueue(link);
                     }
                 }
+
+                watch.Stop();
+                times[url.GetDomain] = watch.Elapsed;
+                //Console.WriteLine(i + "\t" + (int)watch.Elapsed.TotalMilliseconds + "\t" + url);
             }
 
             return SitesContents;

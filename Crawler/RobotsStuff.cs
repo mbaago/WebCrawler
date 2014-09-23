@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using URLStuff;
+using System.Diagnostics;
 
 namespace Crawler
 {
@@ -17,6 +18,12 @@ namespace Crawler
         }
 
         private Dictionary<string, Tuple<DateTime, Regex>> CachedRegexes { get; set; }
+
+        private Stopwatch regexCalcWatch = new Stopwatch();
+        public Dictionary<string, int> regexCalcTimes = new Dictionary<string, int>();
+
+        private Stopwatch robotDownloadWatch = new Stopwatch();
+        public Dictionary<string, int> robotDownloadTimes = new Dictionary<string, int>();
 
         /// <summary>
         /// How old can a robot be before it gets removed.
@@ -36,6 +43,8 @@ namespace Crawler
             {
                 return CachedRegexes[url.GetDomain].Item2;
             }
+
+            regexCalcWatch.Restart();
 
             // No restrictions
             // 
@@ -68,6 +77,10 @@ namespace Crawler
             regPattern.Replace("*", ".*").Replace(".", "\\.").Replace("+", "\\+");
 
             CachedRegexes[url.GetDomain] = new Tuple<DateTime, Regex>(DateTime.Now, new Regex(regPattern.ToString()));
+
+            regexCalcWatch.Stop();
+            regexCalcTimes[url.GetDomain] = (int)regexCalcWatch.Elapsed.TotalMilliseconds;
+
             return CachedRegexes[url.GetDomain].Item2;
         }
 
@@ -78,8 +91,9 @@ namespace Crawler
                 // Too old?
                 if (DateTime.Now - CachedRegexes[url.GetDomain].Item1 > MaxAge)
                 {
-                    System.Diagnostics.Debug.WriteLine("Old robot: " + url, "ROBOT");
+                    //System.Diagnostics.Debug.WriteLine("Old robot: " + url, "ROBOT");
                     var robotContent = DownloadRobotContent(url).Split('\n');
+
                     var regex = CalcRobotRegexForDomain(url, robotContent);
                     CachedRegexes[url.GetDomain] = new Tuple<DateTime, Regex>(DateTime.Now, regex);
                 }
@@ -96,18 +110,24 @@ namespace Crawler
 
         private string DownloadRobotContent(PrettyURL url)
         {
+            string content = "";
+            robotDownloadWatch.Restart();
+
             try
             {
                 string robot = "http://" + url.GetDomain + "/" + "robots.txt";
                 System.Diagnostics.Debug.WriteLine("Robot: Downloading " + robot);
-                string robotContent = new System.Net.WebClient().DownloadString(robot);
-                return robotContent;
+                content = new System.Net.WebClient().DownloadString(robot);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Robot: Could not download " + url);
-                return "";
             }
+
+            robotDownloadWatch.Stop();
+            robotDownloadTimes[url.GetDomain] = (int)robotDownloadWatch.Elapsed.TotalMilliseconds;
+
+            return content;
         }
 
         public void RemoveRobot(PrettyURL url)

@@ -13,6 +13,7 @@ namespace Indexer
         {
             StopWords = stopWords ?? Enumerable.Empty<string>();
         }
+
         public IEnumerable<string> StopWords { get; set; }
 
         public Dictionary<string, List<string>> CreateInverseIndex(Dictionary<string, string> siteWithContent)
@@ -23,9 +24,9 @@ namespace Indexer
             foreach (var site in siteWithContent)
             {
                 var a = Tokenizer(site.Value);
-                var b = StopWordRemover(a);
-                var c = CaseFolder(b);
-                var d = Stemmer(c);
+                var b = StopWordRemover(a).ToArray();
+                var c = CaseFolder(b).ToArray();
+                var d = Stemmer(c).ToArray();
 
                 foreach (var word in d)
                 {
