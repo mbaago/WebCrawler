@@ -16,7 +16,6 @@ namespace Peter
         static void Main(string[] args)
         {
             Console.WriteLine("Started");
-
             int sitesToCrawl = 100;
             int numFrontQueues = 10;
             int numBackQueues = 3;
@@ -37,7 +36,6 @@ namespace Peter
             MainIndexer indexer = new MainIndexer(stopWords);
             indexer.CreateInverseIndex();
             Console.WriteLine("Indexing completed");
-
             Console.ReadKey();
         }
 
@@ -45,23 +43,13 @@ namespace Peter
         {
             DB db = new DB();
 
+            db.clearPages();
             db.insertNew("www.reddit.com", "<p>bla bla bla</p>");
 
-            DBContextDataContext dbCon = new DBContextDataContext();
 
             Page page = db.getPageOnUrl("www.reddit.com");
 
             Console.WriteLine(page.id + " " + page.url + " " + page.html);
-
-            //var result = from u in dbCon.Urls
-            //             select u;
-
-
-            //foreach (Url u in result)
-            //{
-            //    Console.WriteLine(u.id + " " + u.url1);
-            //}
-
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?><Database Name="Peter" Class="DBContextDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
-  <Connection Mode="AppSettings" ConnectionString="Data Source=MORTEN-PC\SQLEXPRESS;Initial Catalog=Peter;Integrated Security=True" SettingsObjectName="Peter.Properties.Settings" SettingsPropertyName="PeterConnectionString" Provider="System.Data.SqlClient" />
+  <Connection Mode="AppSettings" ConnectionString="Data Source=MORTEN-PC\SQLEXPRESS;Initial Catalog=Peter;Integrated Security=True" SettingsObjectName="PetersWeb.Properties.Settings" SettingsPropertyName="PeterConnectionString" Provider="System.Data.SqlClient" />
   <Table Name="dbo.Pages" Member="Pages">
     <Type Name="Page">
       <Column Name="id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
@@ -8,4 +8,7 @@
       <Column Name="timestamp" Type="System.Data.Linq.Binary" DbType="rowversion NOT NULL" CanBeNull="false" IsVersion="true" />
     </Type>
   </Table>
+  <Function Name="dbo.DeleteAllPages" Method="DeleteAllPages">
+    <Return Type="System.Int32" />
+  </Function>
 </Database>

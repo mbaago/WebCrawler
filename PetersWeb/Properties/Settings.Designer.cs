@@ -32,5 +32,15 @@ namespace PetersWeb.Properties {
                 return ((string)(this["PeterConnectionString1"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=MORTEN-PC\\SQLEXPRESS;Initial Catalog=Peter;Integrated Security=True")]
+        public string PeterConnectionString {
+            get {
+                return ((string)(this["PeterConnectionString"]));
+            }
+        }
     }
 }

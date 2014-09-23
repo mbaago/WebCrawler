@@ -41,9 +41,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DB.cs" />
-    <Compile Include="DBContext.cs">
-      <DependentUpon>DBContext.dbml</DependentUpon>
-    </Compile>
     <Compile Include="DBContext.designer.cs">
       <DependentUpon>DBContext.dbml</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -69,12 +66,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="DBContext.dbml.layout">
       <DependentUpon>DBContext.dbml</DependentUpon>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
