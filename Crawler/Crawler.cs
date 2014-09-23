@@ -3,194 +3,132 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 using System.Net;
+using Indexer;
+using URLStuff;
+using System.Diagnostics;
 
 namespace Crawler
 {
     public class Crawler
     {
-        public Crawler(int numFrontQueues)
+        public Crawler(int numFrontQueues, int numBackQueues, TimeSpan timebetweenVisits, TimeSpan maxAgeOfRobots, IEnumerable<PrettyURL> seed, IEnumerable<string> stopWords)
         {
-            //MaxNumberOfBackQueues = 3;
-            //FrontQueues = new Queue<string>[numFrontQueues];
-            //for (int i = 0; i < FrontQueues.Length; i++)
-            //{
-            //    FrontQueues[i] = new Queue<string>();
-            //}
-            //BackQueues = new Dictionary<string, Queue<string>>();
-            //DomainsVisited = new Dictionary<string, DateTime>();
-
-            //VisitedURLS = new List<string>();
-
-            //RobotStuff = new RobotsStuff(TimeSpan.FromSeconds(60));
+            IAMAROBOTHANDLER = new RobotsStuff(maxAgeOfRobots);
+            IAMTHEMERCATOR = new Mercator(numFrontQueues, numBackQueues, timebetweenVisits, seed);
+            IAMTHEINDEXER = new MainIndexer(stopWords);
         }
 
-        public int TotalVisits { get; set; }
-        private RobotsStuff RobotStuff { get; set; }
-        private Mercator Queuer { get; set; }
+        private RobotsStuff IAMAROBOTHANDLER { get; set; }
+        private Mercator IAMTHEMERCATOR { get; set; }
+        private MainIndexer IAMTHEINDEXER { get; set; }
 
-        public void CrawlTheWeb(IEnumerable<string> seed)
+
+        public void CrawlTheWeb()
         {
-            //foreach (var item in seed)
-            //{
-            //    AddURLToQueue(item);
-            //}
+            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
 
-            //foreach (var url in seed)
-            //{
+            Console.WriteLine("Downloading");
+            var siteContents = DoTheCrawl_GetSitesContents(2, false);
 
-            //    foreach (var link in ExtractLinksFromHTML(url))
-            //    {
-            //        AddURLToQueue(link);
-            //    }
-            //}
+            watch.Stop();
+            //Console.WriteLine(regexCalcWatch.Elapsed);
+
+
+            watch.Restart();
+            var index = IAMTHEINDEXER.CreateInverseIndex(siteContents);
+            watch.Stop();
+            Console.WriteLine("Index creation: " + watch.Elapsed);
+
+
         }
 
-        //private int MaxNumberOfBackQueues { get; set; }
-        //private Queue<string>[] FrontQueues { get; set; }
-        //private Dictionary<string, Queue<string>> BackQueues { get; set; }
-        //private Dictionary<string, DateTime> DomainsVisited { get; set; }
-        //private List<string> VisitedURLS { get; set; }
+        private Dictionary<string, string> DoTheCrawl_GetSitesContents(int numberOfSitesToVisit, bool print)
+        {
+            Stopwatch watch = new Stopwatch();
+            Dictionary<string, TimeSpan> times = new Dictionary<string, TimeSpan>();
 
-        //public void AddURLToQueue(string url)
-        //{
-        //    url = URLStuff.MakeURLPretty(url);
+            Dictionary<string, string> SitesContents = new Dictionary<string, string>();
+            for (int i = 0; i < numberOfSitesToVisit; i++)
+            {
+                watch.Restart();
 
-        //    if (!VisitedURLS.Contains(url))
-        //    {
-        //        int q = new Random().Next(0, FrontQueues.Length);
-        //        FrontQueues[q].Enqueue(url);
-        //    }
-        //}
+                var url = IAMTHEMERCATOR.GetURLToCrawl();
 
-        //public string BackQueueSelector()
-        //{
-        //    // første gang, alle tomme
-        //    while (BackQueues.Count < MaxNumberOfBackQueues)
-        //    {
-        //        string url = FrontQueueSelector();
-        //        string dom = URLStuff.ExtractDomain(url);
-        //        if (BackQueues.Keys.Contains(dom))
-        //        {
-        //            BackQueues[dom].Enqueue(url);
-        //        }
-        //        else
-        //        {
-        //            BackQueues.Add(dom, new Queue<string>());
-        //            BackQueues[dom].Enqueue(url);
-        //        }
-        //    }
+                // check with robot
+                if (IAMAROBOTHANDLER.IsVisitAllowed(url))
+                {
+                    if (print)
+                    {
+                        Console.WriteLine(i + "\t" + url);
+                    }
 
-        //    // Simulate the heap
-        //    var orderedTimes = DomainsVisited
-        //        .Where(d => BackQueues.Keys.Contains(d.Key))
-        //        .OrderByDescending(t => t.Value);
+                    var html = DownloadHTML(url);
+                    if (html == null)
+                    {
+                        continue;
+                    }
 
-        //    var oldest = orderedTimes.First();
+                    var links = ExtractLinksFromHTML(url, html);
 
-        //    while (DateTime.Now - oldest.Value < TimeSpan.FromSeconds(1))
-        //    {
-        //        System.Threading.Thread.Sleep(10);
-        //    }
+                    SitesContents[url.GetPrettyURL] = html;
 
-        //    var returnURL = BackQueues[oldest.Key].Dequeue();
+                    foreach (var link in links)
+                    {
+                        IAMTHEMERCATOR.AddURLToFrontQueue(link);
+                    }
+                }
 
-        //    while (BackQueues[oldest.Key].Count == 0)
-        //    {
-        //        var item = FrontQueueSelector();
-        //        var dom = URLStuff.ExtractDomain(item);
+                watch.Stop();
+                times[url.GetDomain] = watch.Elapsed;
+                //Console.WriteLine(i + "\t" + (int)watch.Elapsed.TotalMilliseconds + "\t" + url);
+            }
 
-        //        if (BackQueues.ContainsKey(dom))
-        //        {
-        //            BackQueues[dom].Enqueue(item);
-        //        }
-        //        else
-        //        {
-        //            BackQueues[dom] = new Queue<string>();
-        //            BackQueues[dom].Enqueue(item);
-        //        }
-        //    }
+            return SitesContents;
+        }
 
-        //    return returnURL;
-        //}
 
-        //private string FrontQueueSelector()
-        //{
-        //    int rand = new Random().Next(0, FrontQueues.Length);
+        public string DownloadHTML(PrettyURL url)
+        {
+            WebClient web = new WebClient();
 
-        //    for (int i = 0; i < FrontQueues.Length; i++)
-        //    {
-        //        if (FrontQueues[rand].Count > 0)
-        //        {
-        //            return FrontQueues[rand].Dequeue();
-        //        }
+            if (IAMAROBOTHANDLER.IsVisitAllowed(url))
+            {
+                try
+                {
+                    return web.DownloadString(url.GetPrettyURL);
+                }
+                catch (Exception ex)
+                {
+                    // tough luck
+                    System.Diagnostics.Debug.WriteLine("Crawler: Error downloading " + url);
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
 
-        //        rand = rand++ % FrontQueues.Length;
-        //    }
+        public IEnumerable<PrettyURL> ExtractLinksFromHTML(PrettyURL url, string html)
+        {
+            var hrefs = html.Split(new string[] { "<a href=\"" }, StringSplitOptions.RemoveEmptyEntries).Skip(1);
 
-        //    throw new Exception("FrontQueues were empty");
-        //}
+            var urls = new List<PrettyURL>();
 
-        //private void VisitDomain(string url)
-        //{
-        //    string dom = URLStuff.ExtractDomain(url);
-        //    if (DomainsVisited.ContainsKey(dom))
-        //    {
-        //        DomainsVisited[dom] = DateTime.Now;
-        //    }
-        //    else
-        //    {
-        //        DomainsVisited.Add(dom, DateTime.Now);
-        //    }
-        //}
+            foreach (var href in hrefs)
+            {
+                var link = href.Split('\"').First();
+                string fullPath = (link.StartsWith("/") ? url.GetPrettyURL : "") + link;
+                if (PrettyURL.IsValidURL(fullPath))
+                {
+                    urls.Add(new PrettyURL(fullPath));
+                }
+            }
 
-        //public string DownloadHTML(string url)
-        //{
-        //    url = URLStuff.MakeURLPretty(url);
-        //    WebClient web = new WebClient();
-        //    string dom = URLStuff.ExtractDomain(url);
-
-        //    RobotStuff.DownloadRobotsIfTooOld(url);
-
-        //    if (RobotStuff.IsVisitAllowed(url))
-        //    {
-        //        VisitDomain(url);
-        //        VisitedURLS.Add(url);
-        //        return web.DownloadString(url);
-        //    }
-        //    else
-        //    {
-        //        return null;
-        //    }
-        //}
-
-        //public IEnumerable<string> ExtractLinksFromHTML(string url)
-        //{
-        //    var html = DownloadHTML(url);
-
-        //    if (html == null)
-        //    {
-        //        return Enumerable.Empty<string>();
-        //    }
-
-        //    var hrefs = html.Split(new string[] { "<a href=\"" }, StringSplitOptions.RemoveEmptyEntries).Skip(1);
-
-        //    List<string> urls = new List<string>();
-
-        //    foreach (var href in hrefs)
-        //    {
-        //        var link = href.Split('\"').First();
-        //        string fullPath = (link.StartsWith("/") ? url : "") + link;
-        //        if (URLStuff.IsValidURL(fullPath))
-        //        {
-        //            string ur = URLStuff.MakeURLPretty(fullPath);
-
-        //            urls.Add(ur);
-        //        }
-        //    }
-
-        //    return urls;
-        //}
+            return urls;
+        }
     }
 }

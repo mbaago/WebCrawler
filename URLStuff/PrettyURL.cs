@@ -4,11 +4,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crawler
+namespace URLStuff
 {
-    static class URLStuff
+    public class PrettyURL
     {
-        public static string MakeURLPretty(string url)
+        public PrettyURL(string url)
+        {
+            GetPrettyURL = MakeURLPretty(url);
+            GetDomain = ExtractDomain(url);
+        }
+
+        public string GetPrettyURL { get; private set; }
+        public string GetDomain { get; private set; }
+
+
+        public override string ToString()
+        {
+            return GetPrettyURL;
+        }
+
+        private string MakeURLPretty(string url)
         {
             var lowURL = url.ToLower();
 
@@ -40,7 +55,7 @@ namespace Crawler
             return url;
         }
 
-        public static string ExtractDomain(string url)
+        private string ExtractDomain(string url)
         {
             url = MakeURLPretty(url);
             var splitter = url.Split(new char[] { '/' }, 3, StringSplitOptions.RemoveEmptyEntries);
