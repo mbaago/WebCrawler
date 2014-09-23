@@ -45,10 +45,17 @@ namespace Indexer
         {
             HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
             doc.LoadHtml(html);
-            var paragraphs = doc.DocumentNode.SelectNodes("//p")
-                .Select(p => Danish.MakeDanish(p.InnerText));
 
-            var longParagraph = string.Join(" ", paragraphs);
+            var paragraphs = doc.DocumentNode.SelectNodes("//p");
+
+            if (paragraphs == null)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            var innerTexts = paragraphs.Select(p => Danish.MakeDanish(p.InnerText));
+
+            var longParagraph = string.Join(" ", innerTexts);
 
             return longParagraph.Split(' ');
         }

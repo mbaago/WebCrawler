@@ -30,7 +30,7 @@ namespace Crawler
             watch.Start();
 
             Console.WriteLine("Downloading");
-            var siteContents = DoTheCrawl_GetSitesContents(2, false);
+            var siteContents = DoTheCrawl_GetSitesContents(100, false);
 
             watch.Stop();
             //Console.WriteLine(regexCalcWatch.Elapsed);
@@ -40,8 +40,6 @@ namespace Crawler
             var index = IAMTHEINDEXER.CreateInverseIndex(siteContents);
             watch.Stop();
             Console.WriteLine("Index creation: " + watch.Elapsed);
-
-
         }
 
         private Dictionary<string, string> DoTheCrawl_GetSitesContents(int numberOfSitesToVisit, bool print)
@@ -82,7 +80,7 @@ namespace Crawler
 
                 watch.Stop();
                 times[url.GetDomain] = watch.Elapsed;
-                //Console.WriteLine(i + "\t" + (int)watch.Elapsed.TotalMilliseconds + "\t" + url);
+                Console.WriteLine(i + "\t" + (int)watch.Elapsed.TotalMilliseconds + "\t" + url);
             }
 
             return SitesContents;
