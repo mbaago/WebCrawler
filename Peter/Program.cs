@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Crawler;
+using URLStuff;
+using PetersWeb;
 
 namespace Peter
 {
@@ -24,9 +26,15 @@ namespace Peter
             test();
             Console.WriteLine("Started");
 
-            Crawler.Crawler craw = new Crawler.Crawler(10, TimeSpan.FromSeconds(60)) { TotalVisits = 1000 };
+            int numFrontQueues = 10;
+            int numBackQueues = 3;
+            TimeSpan timeBetweenHits = TimeSpan.FromSeconds(1);
+            TimeSpan maxRobotAge = TimeSpan.FromMinutes(5);
             var seed = new PrettyURL[] { new PrettyURL("newz.dk"), new PrettyURL("reddit.com"), new PrettyURL("politikken.dk") };
-            craw.CrawlTheWeb(seed);
+            var stopWords = new string[] { };
+
+            Crawler.Crawler crawler = new Crawler.Crawler(numFrontQueues, numBackQueues, timeBetweenHits, maxRobotAge, seed, stopWords);
+            crawler.CrawlTheWeb();
 
             Console.WriteLine("Completed");
             Console.ReadKey();
