@@ -9,7 +9,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Peter
+namespace PetersWeb
 {
 	using System.Data.Linq;
 	using System.Data.Linq.Mapping;
@@ -36,7 +36,7 @@ namespace Peter
     #endregion
 		
 		public DBContextDataContext() : 
-				base(global::Peter.Properties.Settings.Default.PeterConnectionString, mappingSource)
+				base(global::PetersWeb.Properties.Settings.Default.PeterConnectionString, mappingSource)
 		{
 			OnCreated();
 		}
@@ -71,6 +71,13 @@ namespace Peter
 			{
 				return this.GetTable<Page>();
 			}
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.DeleteAllPages")]
+		public int DeleteAllPages()
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())));
+			return ((int)(result.ReturnValue));
 		}
 	}
 	

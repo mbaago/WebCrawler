@@ -22,19 +22,19 @@ namespace Peter
             //string res = craw.MakeURLPretty(url);
 
             //Console.WriteLine(res);
-
-            test();
             Console.WriteLine("Started");
+            test();
+            
 
-            int numFrontQueues = 10;
-            int numBackQueues = 3;
-            TimeSpan timeBetweenHits = TimeSpan.FromSeconds(1);
-            TimeSpan maxRobotAge = TimeSpan.FromMinutes(5);
-            var seed = new PrettyURL[] { new PrettyURL("newz.dk"), new PrettyURL("reddit.com"), new PrettyURL("politikken.dk") };
-            var stopWords = new string[] { };
+            //int numFrontQueues = 10;
+            //int numBackQueues = 3;
+            //TimeSpan timeBetweenHits = TimeSpan.FromSeconds(1);
+            //TimeSpan maxRobotAge = TimeSpan.FromMinutes(5);
+            //var seed = new PrettyURL[] { new PrettyURL("newz.dk"), new PrettyURL("reddit.com"), new PrettyURL("politikken.dk") };
+            //var stopWords = new string[] { };
 
-            Crawler.Crawler crawler = new Crawler.Crawler(numFrontQueues, numBackQueues, timeBetweenHits, maxRobotAge, seed, stopWords);
-            crawler.CrawlTheWeb();
+            //Crawler.Crawler crawler = new Crawler.Crawler(numFrontQueues, numBackQueues, timeBetweenHits, maxRobotAge, seed, stopWords);
+            //crawler.CrawlTheWeb();
 
             Console.WriteLine("Completed");
             Console.ReadKey();
@@ -44,22 +44,14 @@ namespace Peter
         {
             DB db = new DB();
 
+            db.clearPages();
             db.insertNew("www.reddit.com", "<p>bla bla bla</p>");
 
-            DBContextDataContext dbCon = new DBContextDataContext();
 
             Page page = db.getPageOnUrl("www.reddit.com");
 
             Console.WriteLine(page.id + " " + page.url + " " + page.html);
 
-            //var result = from u in dbCon.Urls
-            //             select u;
-
-
-            //foreach (Url u in result)
-            //{
-            //    Console.WriteLine(u.id + " " + u.url1);
-            //}
             
         }
     }

@@ -8,9 +8,11 @@ namespace PetersWeb
 {
     public class DB
     {
+        DBContextDataContext dbCon = new DBContextDataContext();
+
         public void insertNew(string www, string html)
         {
-            DBContextDataContext dbCon = new DBContextDataContext();
+            
             Page page = new Page();
             page.url = www;
             page.html = html;
@@ -21,12 +23,16 @@ namespace PetersWeb
 
         public Page getPageOnUrl(string url)
         {
-            DBContextDataContext dbCon = new DBContextDataContext();
             var pages = from p in dbCon.Pages
                         where p.url.ToString() == url
                         select p;
 
             return pages.FirstOrDefault();
+        }
+
+        public void clearPages()
+        {
+            dbCon.DeleteAllPages();
         }
     }
 
