@@ -39,11 +39,13 @@ namespace Crawler
         private Dictionary<string, string> DoTheCrawl_SaveToDB(int numberOfSitesToVisit, bool print)
         {
             Stopwatch watch = new Stopwatch();
+            TimeSpan elapsed = new TimeSpan();
             Dictionary<string, TimeSpan> times = new Dictionary<string, TimeSpan>();
 
             Dictionary<string, string> result = new Dictionary<string, string>();
+            int sitesVisited = 0;
 
-            for (int i = 0; i < numberOfSitesToVisit; i++)
+            while (sitesVisited < numberOfSitesToVisit)
             {
                 watch.Restart();
 
@@ -54,7 +56,7 @@ namespace Crawler
                 {
                     if (print)
                     {
-                        Console.WriteLine(i + "\t" + url);
+                        Console.WriteLine(sitesVisited + "\t" + url);
                     }
 
                     var html = DownloadHTML(url);
@@ -75,7 +77,10 @@ namespace Crawler
 
                 watch.Stop();
                 times[url.GetDomain] = watch.Elapsed;
-                Console.WriteLine(i + "\t" + (int)watch.Elapsed.TotalMilliseconds + "\t" + url);
+                elapsed += watch.Elapsed;
+                Console.WriteLine(sitesVisited + "\t" + (int)watch.Elapsed.TotalMilliseconds + "\t" + url);
+                Console.Title = elapsed.ToString();
+                sitesVisited++;
             }
 
             return result;
@@ -107,7 +112,9 @@ namespace Crawler
 
         public IEnumerable<PrettyURL> ExtractLinksFromHTML(PrettyURL url, string html)
         {
-            var hrefs = html.Split(new string[] { "<a href=\"" }, StringSplitOptions.RemoveEmptyEntries).Skip(1);
+            var hrefs = html.Split(new string[] { "<a href=\"" }, StringSplitOptions.RemoveEmptyEntries)
+                .Skip(1)
+                .Where(s => !s.StartsWith("feed"));
 
             var urls = new List<PrettyURL>();
 

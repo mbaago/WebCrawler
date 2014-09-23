@@ -15,8 +15,11 @@ namespace Peter
         static DBContextDataContext dbCon = new DBContextDataContext();
         static void Main(string[] args)
         {
+            //database.clearPages();
+            //return;
+            
             Console.WriteLine("Started");
-            int sitesToCrawl = 10;
+            int sitesToCrawl = 1000;
             int numFrontQueues = 10;
             int numBackQueues = 3;
             TimeSpan timeBetweenHits = TimeSpan.FromSeconds(1);
@@ -28,7 +31,6 @@ namespace Peter
             Console.WriteLine("Completed downloading");
 
             Console.WriteLine("Inserting into db");
-            DB database = new DB();
             foreach (var site in sites)
             {
                 database.insertNew(site.Key, site.Value);
@@ -42,6 +44,8 @@ namespace Peter
             Console.WriteLine("Indexing completed");
             Console.ReadKey();
         }
+
+        static DB database = new DB();
 
         static void test()
         {

@@ -100,7 +100,7 @@ namespace Crawler
             }
             else
             {
-                var robotContent = DownloadRobotContent(url).Split('\n');
+                var robotContent = DownloadRobotContent(url).Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
                 var regex = CalcRobotRegexForDomain(url, robotContent);
                 CachedRegexes[url.GetDomain] = new Tuple<DateTime, Regex>(DateTime.Now, regex);
             }

@@ -11,7 +11,7 @@ namespace URLStuff
         public PrettyURL(string url)
         {
             GetPrettyURL = MakeURLPretty(url);
-            GetDomain = ExtractDomain(url);
+            GetDomain = ExtractDomain(GetPrettyURL);
         }
 
         public string GetPrettyURL { get; private set; }
@@ -26,7 +26,7 @@ namespace URLStuff
         private string MakeURLPretty(string url)
         {
             var lowURL = url.ToLower();
-
+            
             if (lowURL.StartsWith("http://www"))
             {
                 // Everything's good.
@@ -55,10 +55,9 @@ namespace URLStuff
             return url;
         }
 
-        private string ExtractDomain(string url)
+        private string ExtractDomain(string prettyURL)
         {
-            url = MakeURLPretty(url);
-            var splitter = url.Split(new char[] { '/' }, 3, StringSplitOptions.RemoveEmptyEntries);
+            var splitter = prettyURL.Split(new char[] { '/' }, 3, StringSplitOptions.RemoveEmptyEntries);
             return splitter[1];
         }
 
