@@ -16,7 +16,7 @@ namespace Peter
         static void Main(string[] args)
         {
             Console.WriteLine("Started");
-            int sitesToCrawl = 100;
+            int sitesToCrawl = 10;
             int numFrontQueues = 10;
             int numBackQueues = 3;
             TimeSpan timeBetweenHits = TimeSpan.FromSeconds(1);
@@ -28,7 +28,11 @@ namespace Peter
             Console.WriteLine("Completed downloading");
 
             Console.WriteLine("Inserting into db");
-
+            DB database = new DB();
+            foreach (var site in sites)
+            {
+                database.insertNew(site.Key, site.Value);
+            }
             Console.WriteLine("db insertion completed");
 
             Console.WriteLine("Creating index");
