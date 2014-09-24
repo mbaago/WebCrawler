@@ -22,7 +22,7 @@ namespace Peter
             {
 
                 Console.WriteLine("Started");
-                int sitesToCrawl = 100;
+                int sitesToCrawl = 1000;
                 int numFrontQueues = 10;
                 int numBackQueues = 3;
                 TimeSpan timeBetweenHits = TimeSpan.FromSeconds(1);
@@ -30,15 +30,8 @@ namespace Peter
                 var seed = new PrettyURL[] { new PrettyURL("newz.dk"), new PrettyURL("aau.dk"), new PrettyURL("politikken.dk") };
 
                 Crawler.Crawler crawler = new Crawler.Crawler(numFrontQueues, numBackQueues, timeBetweenHits, maxRobotAge, seed);
-                var sites = crawler.CrawlTheWeb(sitesToCrawl);
+                var sites = crawler.CrawlTheWebAndAddToDB(sitesToCrawl);
                 Console.WriteLine("Completed downloading");
-
-                Console.WriteLine("Inserting into db");
-                foreach (var site in sites)
-                {
-                    database.insertNew(site.Key, site.Value);
-                }
-                Console.WriteLine("db insertion completed");
             }
 
             Console.WriteLine("Creating index");

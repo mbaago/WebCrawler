@@ -26,7 +26,7 @@ namespace Crawler
 
         private DB DataBase = new DB();
 
-        public Dictionary<string, string> CrawlTheWeb(int getSites)
+        public Dictionary<string, string> CrawlTheWebAndAddToDB(int getSites)
         {
             //System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             //watch.Start();
@@ -40,11 +40,16 @@ namespace Crawler
         private Dictionary<string, string> DoTheCrawl_SaveToDB(int numberOfSitesToVisit, bool print)
         {
             Stopwatch watch = new Stopwatch();
-            TimeSpan elapsed = new TimeSpan();
+            Stopwatch totalTime = new Stopwatch();
+            Stopwatch dupTime = new Stopwatch();
+
             Dictionary<string, TimeSpan> times = new Dictionary<string, TimeSpan>();
+            List<PrettyURL> hasNearDuplicate = new List<PrettyURL>();
 
             Dictionary<string, string> result = new Dictionary<string, string>();
             int sitesVisited = 0;
+
+            totalTime.Start();
 
             while (sitesVisited < numberOfSitesToVisit)
             {
@@ -55,35 +60,80 @@ namespace Crawler
                 // check with robot
                 if (IAMAROBOTHANDLER.IsVisitAllowed(url))
                 {
-                    if (print)
-                    {
-                        Console.WriteLine(sitesVisited + "\t" + url);
-                    }
-
                     var html = DownloadHTML(url);
                     if (html == null)
                     {
                         continue;
                     }
 
-                    result[url.GetPrettyURL] = html;
+                    // check for near dups
+                    dupTime.Restart();
+                    if (IsNearDuplicateOfAlreadyAddedSite(html))
+                    {
+                        hasNearDuplicate.Add(url);
+                        continue;
+                    }
+                    dupTime.Stop();
+
+                    DataBase.insertNew(url.GetPrettyURL, html);
 
                     var links = ExtractLinksFromHTML(url, html);
                     foreach (var link in links)
                     {
                         IAMTHEMERCATOR.AddURLToFrontQueue(link);
                     }
+
+                    if (print)
+                    {
+                        Console.WriteLine(sitesVisited + "\t" + url);
+                    }
                 }
 
                 watch.Stop();
                 times[url.GetDomain] = watch.Elapsed;
-                elapsed += watch.Elapsed;
-                Console.WriteLine(sitesVisited + "\t" + (int)watch.Elapsed.TotalMilliseconds + "\t" + url);
-                Console.Title = elapsed.ToString();
+                Console.WriteLine(sitesVisited + "\t" + (int)watch.Elapsed.TotalMilliseconds + "\t" + (int)dupTime.Elapsed.TotalMilliseconds + "\t" + url);
+                Console.Title = totalTime.Elapsed.ToString();
                 sitesVisited++;
             }
 
             return result;
+        }
+
+        private bool IsNearDuplicateOfAlreadyAddedSite(string html)
+        {
+            // smid html i db
+            var input = GetHTMLContent(html);
+
+            // smid shingle hashes i db?
+            foreach (var site in DataBase.GetAllPages())
+            {
+                var compareWith = GetHTMLContent(site.html);
+
+                if (IAMJACCARD.IsNearDuplicate(compareWith, input))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private string GetHTMLContent(string html)
+        {
+            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+            doc.LoadHtml(html);
+
+            var a = doc.DocumentNode.SelectNodes("//p");
+            if (a == null)
+            {
+                return "";
+            }
+            var b = a.Select(p => p.InnerText);
+
+
+            var content = string.Join(" ", b);
+
+            return content;
         }
 
 
