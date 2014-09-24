@@ -34,7 +34,12 @@ namespace PetersWeb
         {
             dbCon.DeleteAllPages();
         }
+
+        public IEnumerable<Page> GetAllPages()
+        {
+            var pages = dbCon.Pages;
+
+            return pages;
+        }
     }
-
-
 }
