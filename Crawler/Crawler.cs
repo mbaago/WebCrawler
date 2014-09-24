@@ -22,6 +22,7 @@ namespace Crawler
         private RobotsStuff IAMAROBOTHANDLER { get; set; }
         private Mercator IAMTHEMERCATOR { get; set; }
         private MainIndexer IAMTHEINDEXER { get; set; }
+        private Jaccard IAMJACCARD = new Jaccard(4, 0.9);
 
         private DB DataBase = new DB();
 
@@ -65,7 +66,6 @@ namespace Crawler
                         continue;
                     }
 
-                    //DataBase.insertNew(url.GetPrettyURL, html);
                     result[url.GetPrettyURL] = html;
 
                     var links = ExtractLinksFromHTML(url, html);
