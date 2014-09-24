@@ -41,5 +41,15 @@ namespace PetersWeb
 
             return pages;
         }
+
+        public IEnumerable<int> GetShinglesFromPrettyURL(string prettyURL)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetSiteContentFromPrettyURL(string prettyURL)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
