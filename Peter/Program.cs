@@ -19,7 +19,7 @@ namespace Peter
             //return;
             
             Console.WriteLine("Started");
-            int sitesToCrawl = 1000;
+            int sitesToCrawl = 100;
             int numFrontQueues = 10;
             int numBackQueues = 3;
             TimeSpan timeBetweenHits = TimeSpan.FromSeconds(1);

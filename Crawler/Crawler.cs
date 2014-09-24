@@ -114,7 +114,7 @@ namespace Crawler
         {
             var hrefs = html.Split(new string[] { "<a href=\"" }, StringSplitOptions.RemoveEmptyEntries)
                 .Skip(1)
-                .Where(s => !s.StartsWith("feed"));
+                .Where(s => !s.StartsWith("feed") && !s.StartsWith("javascript"));
 
             var urls = new List<PrettyURL>();
 
