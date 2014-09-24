@@ -130,7 +130,7 @@ namespace Crawler
                 Debug.WriteLine("Sleeping for " + oldDomain);
                 while (DateTime.Now - oldDomain.Value < TimeBetweenVisits)
                 {
-                    System.Threading.Thread.Sleep(1000);
+                    System.Threading.Thread.Sleep(100);
                 }
             }
 

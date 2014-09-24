@@ -124,7 +124,12 @@ namespace Crawler
                 string fullPath = (link.StartsWith("/") ? url.GetPrettyURL : "") + link;
                 if (PrettyURL.IsValidURL(fullPath))
                 {
-                    urls.Add(new PrettyURL(fullPath));
+                    var pretty = new PrettyURL(fullPath);
+
+                    if (pretty.GetDomain.EndsWith(".dk"))
+                    {
+                        urls.Add(new PrettyURL(fullPath));
+                    }
                 }
             }
 

@@ -17,14 +17,14 @@ namespace Peter
         {
             //database.clearPages();
             //return;
-            
+
             Console.WriteLine("Started");
             int sitesToCrawl = 100;
             int numFrontQueues = 10;
             int numBackQueues = 3;
             TimeSpan timeBetweenHits = TimeSpan.FromSeconds(1);
             TimeSpan maxRobotAge = TimeSpan.FromMinutes(5);
-            var seed = new PrettyURL[] { new PrettyURL("newz.dk"), new PrettyURL("reddit.com"), new PrettyURL("politikken.dk") };
+            var seed = new PrettyURL[] { new PrettyURL("newz.dk"), new PrettyURL("aau.dk"), new PrettyURL("politikken.dk") };
 
             Crawler.Crawler crawler = new Crawler.Crawler(numFrontQueues, numBackQueues, timeBetweenHits, maxRobotAge, seed);
             var sites = crawler.CrawlTheWeb(sitesToCrawl);
@@ -40,8 +40,9 @@ namespace Peter
             Console.WriteLine("Creating index");
             var stopWords = new string[] { };
             MainIndexer indexer = new MainIndexer(stopWords);
-            indexer.CreateInverseIndex();
+            var index = indexer.CreateInverseIndex();
             Console.WriteLine("Indexing completed");
+
             Console.ReadKey();
         }
 
