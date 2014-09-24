@@ -1,1 +1,24 @@
 \section{Indexing}
+Because we are lazy, we used HtmlAgilityPack (\url{http://www.nuget.org/packages/HtmlAgilityPack}), and extracted only paragraphs from the downloaded HTML. Afterwards, we applied the following steps:
+\begin{itemize}
+	\item Tokenization.
+	\item Normalizaton.
+	\item Stop words.
+	\item Case folding.
+	\item Stemming
+\end{itemize}
+
+\subsection{Tokenization}
+We split the extracted paragraphs on space, and get a collection of strings. From these strings, we remove the following characters: \texttt{. , ?}.
+
+\subsection{Normalizaton}
+We do no normalization.
+
+\subsection{Stop words}
+Using the list of stop words from \url{http://snowball.tartarus.org/algorithms/danish/stop.txt}, we remove them.
+
+\subsection{Case folding}
+We make all the tokens lowercase.
+
+\subsection{Stemming}
+We do nothing for now, because danish, but might use \url{http://snowball.tartarus.org/algorithms/danish/stemmer.html}

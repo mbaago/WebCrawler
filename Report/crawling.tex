@@ -1,1 +1,35 @@
 \section{Crawling}
+mercator handles all url stuff
+
+Our crawler is implemented in several classes:
+\begin{itemize}
+	\item \texttt{Crawler}
+	\item \texttt{Mercator}
+	\item \texttt{RobotStuff}
+	\item \texttt{PrettyURL}
+\end{itemize}
+
+\subsection{Crawler}
+This class gets an URL to crawl for the mercator class, and if the URL should be downloaded, it does so, saves the content, extracts the links and passes them on to the mercator. (handle jaccard)
+
+\subsection{Mercator}
+This class is the implementation of the mercator scheme. It keeps a list of all URLs that have, at some point, been in a frontqueue, and only adds new URLs to a frontqueue if they are not in that list.
+
+
+get url from merc
+if visit okay
+	download
+	get urls
+		add to merc
+		
+		
+robot:
+	regex
+	cache
+	when asked if visit okay:
+		download if not in cache -> might visit domain twice, but only case!
+
+
+jaccard in indexer?
+
+only danish
