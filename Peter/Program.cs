@@ -7,6 +7,8 @@ using Crawler;
 using URLStuff;
 using PetersWeb;
 using Indexer;
+using System.Threading;
+using System.Collections.Concurrent;
 
 namespace Peter
 {
@@ -14,33 +16,44 @@ namespace Peter
     {
         //static DBContextDataContext dbCon = new DBContextDataContext();
         static DB database = new DB();
-        private static Queue<Tuple<PrettyURL, string, DateTime>> ToBeIndexedQueue = new Queue<Tuple<PrettyURL, string, DateTime>>();
+        private static ConcurrentQueue<Tuple<PrettyURL, string, DateTime>> ToBeIndexedQueue = new ConcurrentQueue<Tuple<PrettyURL, string, DateTime>>();
 
+        private static int sitesToCrawl = 5;
+        private static int numFrontQueues = 10;
+        private static int numBackQueues = 3;
+        private static TimeSpan timeBetweenHits = TimeSpan.FromSeconds(1);
+        private static TimeSpan maxRobotAge = TimeSpan.FromMinutes(5);
+        private static PrettyURL[] seed = new PrettyURL[] { new PrettyURL("newz.dk"), new PrettyURL("aau.dk"), new PrettyURL("politikken.dk") };
+
+        private static string[] stopWords = new string[] { "og", "i", "jeg", "det", "at", "en", "den", "til", "er", "som", "på", "de", "med", "han", "af", "for", "ikke", "der", "var", "mig", "sig", "men", "et", "har", "om", "vi", "min", "havde", "ham", "hun", "nu", "over", "da", "fra", "du", "ud", "sin", "dem", "os", "op", "man", "hans", "hvor", "eller", "hvad", "skal", "selv", "her", "alle", "vil", "blev", "kunne", "ind", "når", "være", "dog", "noget", "ville", "jo", "deres", "efter", "ned", "skulle", "denne", "end", "dette", "mit", "også", "under", "have", "dig", "anden", "hende", "mine", "alt", "meget", "sit", "sine", "vor", "mod", "disse", "hvis", "din", "nogle", "hos", "blive", "mange", "ad", "bliver", "hendes", "været", "thi", "jer", "sådan" };
+        private static char[] charsToRemove = new char[] { ',', '.', '?' };
 
         static void Main(string[] args)
         {
-            int sitesToCrawl = 5;
-            int numFrontQueues = 10;
-            int numBackQueues = 3;
-            TimeSpan timeBetweenHits = TimeSpan.FromSeconds(1);
-            TimeSpan maxRobotAge = TimeSpan.FromMinutes(5);
-            var seed = new PrettyURL[] { new PrettyURL("newz.dk"), new PrettyURL("aau.dk"), new PrettyURL("politikken.dk") };
             Crawler.Crawler crawler = new Crawler.Crawler(numFrontQueues, numBackQueues, timeBetweenHits, maxRobotAge, seed, ToBeIndexedQueue);
+            MainIndexer indexer = new MainIndexer(stopWords, charsToRemove);
 
-            System.Threading.Thread thread = new System.Threading.Thread(crawler.Crawl);
-            thread.Start();
+            Thread crawlerThread = new Thread(crawler.Crawl);
+            Thread stopCrawlerThread = new Thread(TellStopCrawling);
 
-            while (ToBeIndexedQueue.Count < sitesToCrawl)
+            crawlerThread.Start();
+            stopCrawlerThread.Start();
+
+            Console.WriteLine("Waiting for completion");
+            Console.ReadKey();
+        }
+
+        private static void TellStopCrawling()
+        {
+            while (Crawler.Crawler.SitesCrawledSoFar < sitesToCrawl)
             {
                 System.Threading.Thread.Sleep(100);
             }
 
-            crawler.ContinueCrawling = false;
-
-            Console.WriteLine("yo");
-
-            Console.ReadLine();
+            Crawler.Crawler.ContinueCrawling = false;
+            Console.WriteLine("Completed");
         }
+
 
         //static void Main(string[] args)
         //{

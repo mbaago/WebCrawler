@@ -8,12 +8,59 @@ using Indexer;
 using URLStuff;
 using System.Diagnostics;
 using PetersWeb;
+using System.Collections.Concurrent;
 
 namespace Crawler
 {
     public class Crawler
     {
-        public Crawler(int numFrontQueues, int numBackQueues, TimeSpan timebetweenVisits, TimeSpan maxAgeOfRobots, IEnumerable<PrettyURL> seed, Queue<Tuple<PrettyURL, string, DateTime>> queue)
+        private static object _siteCrawledLock = new object();
+        private static object _continueCrawlLock = new object();
+
+        private static int _SitesCrawledSoFar = 0;
+        public static int SitesCrawledSoFar
+        {
+            get
+            {
+                lock (_siteCrawledLock)
+                {
+                    return Crawler._SitesCrawledSoFar;
+                }
+            }
+            set
+            {
+                lock (_siteCrawledLock)
+                {
+                    Crawler._SitesCrawledSoFar = value;
+                }
+            }
+        }
+        private static bool _ContinueCrawling;
+        public static bool ContinueCrawling
+        {
+            get
+            {
+                lock (_continueCrawlLock)
+                {
+                    return _ContinueCrawling;
+                }
+            }
+            set {
+                lock (_continueCrawlLock)
+                {
+                    _ContinueCrawling = value;
+                }
+            }
+        }
+
+        private DB DataBase = new DB();
+
+        private ConcurrentQueue<Tuple<PrettyURL, string, DateTime>> CrawledQueue { get; set; }
+        private RobotsStuff Robot_IAm { get; set; }
+        private Mercator Mercator_IAm { get; set; }
+
+
+        public Crawler(int numFrontQueues, int numBackQueues, TimeSpan timebetweenVisits, TimeSpan maxAgeOfRobots, IEnumerable<PrettyURL> seed, ConcurrentQueue<Tuple<PrettyURL, string, DateTime>> queue)
         {
             Robot_IAm = new RobotsStuff(maxAgeOfRobots);
             Mercator_IAm = new Mercator(numFrontQueues, numBackQueues, timebetweenVisits, seed);
@@ -30,6 +77,7 @@ namespace Crawler
                 var html = DownloadHTML(site);
                 var toQueue = Tuple.Create(site, html, DateTime.Now);
                 CrawledQueue.Enqueue(toQueue);
+                SitesCrawledSoFar++;
 
                 Debug.WriteLine("Crawler: downloaded " + site.GetPrettyURL);
 
@@ -40,15 +88,6 @@ namespace Crawler
                 }
             }
         }
-
-        private Queue<Tuple<PrettyURL, string, DateTime>> CrawledQueue { get; set; }
-
-        private RobotsStuff Robot_IAm { get; set; }
-        private Mercator Mercator_IAm { get; set; }
-        //private MainIndexer IAMTHEINDEXER { get; set; }
-        //private Jaccard IAMJACCARD = new Jaccard(4, 0.9);
-        private DB DataBase = new DB();
-        public bool ContinueCrawling { get; set; }
 
         public string DownloadHTML(PrettyURL url)
         {
