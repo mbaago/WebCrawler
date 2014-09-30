@@ -10,15 +10,30 @@ namespace PetersWeb
     {
         DBContextDataContext dbCon = new DBContextDataContext();
 
-        public void insertNew(string www, string html)
+        public void InsertNewDownloadedPage(string www, string html)
         {
-            
             Page page = new Page();
             page.url = www;
             page.html = html;
 
             dbCon.Pages.InsertOnSubmit(page);
             dbCon.SubmitChanges();
+        }
+
+        public void InsertPageContent(string prettyURL, string content)
+        {
+            Page p = getPageOnUrl(prettyURL);
+
+            PageContent pc = new PageContent()
+            {
+                id = p.id,
+                pageContent1 = content
+            };
+        }
+
+        public void InsertShingles(string prettyURL, IEnumerable<int> shingles)
+        {
+            // slet all shingles
         }
 
         public Page getPageOnUrl(string url)
@@ -44,12 +59,26 @@ namespace PetersWeb
 
         public IEnumerable<int> GetShinglesFromPrettyURL(string prettyURL)
         {
-            throw new NotImplementedException();
+            var page = getPageOnUrl(prettyURL);
+            if (page == null)
+            {
+                return Enumerable.Empty<int>();
+            }
+
+            var shingles = from p in dbCon.Shingles
+                           where p.url == page.id
+                           select p.shingle1;
+
+            return shingles;
         }
 
         public string GetSiteContentFromPrettyURL(string prettyURL)
         {
-            throw new NotImplementedException();
+            var page = getPageOnUrl(prettyURL);
+            return dbCon.PageContents
+                .Where(p => p.id == page.id)
+                .Select(p => p.pageContent1)
+                .FirstOrDefault();
         }
     }
 }

@@ -75,7 +75,7 @@ namespace Crawler
                     }
                     dupTime.Stop();
 
-                    DataBase.insertNew(url.GetPrettyURL, html);
+                    DataBase.InsertNewDownloadedPage(url.GetPrettyURL, html);
 
                     var links = ExtractLinksFromHTML(url, html);
                     foreach (var link in links)
