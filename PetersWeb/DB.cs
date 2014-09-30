@@ -20,17 +20,6 @@ namespace PetersWeb
             dbCon.SubmitChanges();
         }
 
-        public void InsertPageContent(string prettyURL, string content)
-        {
-            Page p = getPageOnUrl(prettyURL);
-
-            PageContent pc = new PageContent()
-            {
-                id = p.id,
-                pageContent1 = content
-            };
-        }
-
         public void InsertShingles(string prettyURL, IEnumerable<int> shingles)
         {
             // slet all shingles
@@ -75,10 +64,13 @@ namespace PetersWeb
         public string GetSiteContentFromPrettyURL(string prettyURL)
         {
             var page = getPageOnUrl(prettyURL);
-            return dbCon.PageContents
-                .Where(p => p.id == page.id)
-                .Select(p => p.pageContent1)
-                .FirstOrDefault();
+            //return dbCon.PageContents
+            //    .Where(p => p.id == page.id)
+            //    .Select(p => p.pageContent1)
+            //    .FirstOrDefault();
+
+
+            throw new NotImplementedException();
         }
     }
 }
