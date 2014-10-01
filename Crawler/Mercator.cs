@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using URLStuff;
 
-namespace Crawler
+namespace Peter
 {
     class Mercator
     {
@@ -125,7 +125,7 @@ namespace Crawler
             // Wait until old enough.
             if (DateTime.Now - oldDomain.Value < TimeBetweenVisits)
             {
-                Debug.WriteLine("Sleeping for " + oldDomain);
+                //Debug.WriteLine("Sleeping for " + oldDomain);
                 while (DateTime.Now - oldDomain.Value < TimeBetweenVisits)
                 {
                     System.Threading.Thread.Sleep(100);
@@ -133,7 +133,7 @@ namespace Crawler
             }
 
             var url = BackQueues[oldDomain.Key].Dequeue();
-            Debug.WriteLine("GetURLToCrawl: " + url);
+            //Debug.WriteLine("GetURLToCrawl: " + url);
 
             BackQueueRouter();
             BackQueueHeapSimulator[url.GetDomain] = DateTime.Now;

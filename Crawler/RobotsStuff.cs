@@ -7,10 +7,12 @@ using System.Text.RegularExpressions;
 using URLStuff;
 using System.Diagnostics;
 
-namespace Crawler
+namespace Peter
 {
     class RobotsStuff
     {
+        private static string ROBOT = "robot";
+
         public RobotsStuff(TimeSpan maxAge)
         {
             MaxAge = maxAge;
@@ -91,7 +93,6 @@ namespace Crawler
                 // Too old?
                 if (DateTime.Now - CachedRegexes[url.GetDomain].Item1 > MaxAge)
                 {
-                    //System.Diagnostics.Debug.WriteLine("Old robot: " + prettyURL, "ROBOT");
                     var robotContent = DownloadRobotContent(url).Split('\n');
 
                     var regex = CalcRobotRegexForDomain(url, robotContent);
@@ -116,12 +117,12 @@ namespace Crawler
             try
             {
                 string robot = "http://" + url.GetDomain + "/" + "robots.txt";
-                System.Diagnostics.Debug.WriteLine("Robot: Downloading " + robot);
+                //System.Diagnostics.Debug.WriteLine("Downloading " + robot);
                 content = new System.Net.WebClient().DownloadString(robot);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Robot: Could not download " + url);
+                //System.Diagnostics.Debug.WriteLine("Robot: Could not download " + url);
             }
 
             robotDownloadWatch.Stop();

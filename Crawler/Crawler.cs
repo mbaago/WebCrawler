@@ -4,16 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
-using Indexer;
+using Peter;
 using URLStuff;
 using System.Diagnostics;
 using PetersWeb;
 using System.Collections.Concurrent;
 
-namespace Crawler
+namespace Peter
 {
     public class Crawler
     {
+        private static string CRAWLER = "crawler";
+
         private static object _siteCrawledLock = new object();
         private static object _continueCrawlLock = new object();
         private static int _SitesCrawledSoFar = 0;
@@ -87,7 +89,7 @@ namespace Crawler
                 CrawledQueue.Enqueue(toQueue);
                 SitesCrawledSoFar++;
 
-                Debug.WriteLine("Crawler: downloaded " + site.GetPrettyURL);
+                //Debug.WriteLine("Downloaded " + site.GetPrettyURL, CRAWLER);
 
                 var links = ExtractLinksFromHTML(site, html);
                 foreach (var link in links)
@@ -112,7 +114,7 @@ namespace Crawler
                 catch (Exception ex)
                 {
                     // tough luck
-                    System.Diagnostics.Debug.WriteLine("Crawler: Error downloading " + url);
+                    //System.Diagnostics.Debug.WriteLine("Error downloading " + url, CRAWLER);
                     return null;
                 }
             }

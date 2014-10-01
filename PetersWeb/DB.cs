@@ -10,19 +10,75 @@ namespace PetersWeb
     {
         DBContextDataContext dbCon = new DBContextDataContext();
 
-        public void InsertNewDownloadedPage(string www, string html)
+        public void DeleteAllPages()
+        {
+            dbCon.DeleteAllPages();
+        }
+
+        public void InsertNewDownloadedPage(string prettyURL, string html)
         {
             Page page = new Page();
-            page.url = www;
+            page.url = prettyURL;
             page.html = html;
 
             dbCon.Pages.InsertOnSubmit(page);
             dbCon.SubmitChanges();
         }
 
+        //public void InsertTokens(string prettyURL, IEnumerable<string> tokens)
+        //{
+        //    foreach (var t in tokens)
+        //    {
+        //        dbCon.insertToken(t, prettyURL);
+        //    }
+        //}
+
+        // slow slow slow, but good enough for now
+        public void ManualTokenInserter(string prettyURL, IEnumerable<string> tokens)
+        {
+            Page page = GetPageFromURL(prettyURL);
+
+            var groupedTokens = from tt in tokens
+                                group tt by tt into grouped
+                                select grouped;
+
+            foreach (var group in groupedTokens)
+            {
+                var dbTermToPage = dbCon.TermToPages
+                    .Where(t => t.Term.term1 == group.Key)
+                    .FirstOrDefault();
+
+                if (dbTermToPage == null)
+                {
+                    TermToPage ttp = new TermToPage()
+                    {
+                        count = group.Count(),
+                        Page = page,
+                        Term = new Term() { term1 = group.Key }
+                    };
+                    dbCon.TermToPages.InsertOnSubmit(ttp);
+                }
+                else
+                {
+                    dbTermToPage.count += group.Count();
+                }
+            }
+
+            dbCon.SubmitChanges();
+        }
+
         public void InsertShingles(string prettyURL, IEnumerable<int> shingles)
         {
-            throw new NotImplementedException();
+            var page = GetPageFromURL(prettyURL);
+
+            var toInsert = shingles
+                .Select(s => new Shingle()
+                {
+                    Page = page,
+                    shingle1 = s
+                });
+
+            dbCon.Shingles.InsertAllOnSubmit(toInsert);
         }
 
         public Page GetPageFromURL(string prettyURL)
@@ -34,10 +90,6 @@ namespace PetersWeb
             return pages.FirstOrDefault();
         }
 
-        public void DeleteAllPages()
-        {
-            dbCon.DeleteAllPages();
-        }
 
         public IEnumerable<Page> GetAllPages()
         {
@@ -57,12 +109,13 @@ namespace PetersWeb
             return shingles;
         }
 
-        public void InsertTokens(string prettyURL, IEnumerable<string> tokens)
+
+        public IEnumerable<IEnumerable<int>> GetAllShingleSets()
         {
-            foreach (var t in tokens)
-            {
-                dbCon.insertToken(t, prettyURL);
-            }
+            var shingles = from p in dbCon.Pages
+                           select p.Shingles.Select(s => s.shingle1);
+
+            return shingles;
         }
     }
 }

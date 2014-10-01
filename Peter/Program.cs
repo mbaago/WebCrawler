@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Crawler;
+using Peter;
 using URLStuff;
 using PetersWeb;
-using Indexer;
+using Peter;
 using System.Threading;
 using System.Collections.Concurrent;
 
@@ -18,7 +18,6 @@ namespace Peter
         static DB database = new DB();
         private static ConcurrentQueue<Tuple<PrettyURL, string, DateTime>> ToBeIndexedQueue = new ConcurrentQueue<Tuple<PrettyURL, string, DateTime>>();
 
-        private static int sitesToCrawl = 5;
         private static int numFrontQueues = 10;
         private static int numBackQueues = 3;
         private static TimeSpan timeBetweenHits = TimeSpan.FromSeconds(1);
@@ -30,16 +29,48 @@ namespace Peter
 
         static void Main(string[] args)
         {
-            Crawler.Crawler.SitesToCrawl = sitesToCrawl;
+            //DoSomeCrawlingAndIndexing(100);
+            IndexOnPagesInDB_IAMLAZY();
+
+            Console.WriteLine("Completed");
+            Console.ReadKey();
+        }
+
+        private static void IndexOnPagesInDB_IAMLAZY()
+        {
+            foreach (var page in database.GetAllPages())
+            {
+                ToBeIndexedQueue.Enqueue(new Tuple<PrettyURL, string, DateTime>(new PrettyURL(page.url), page.html, DateTime.Now));
+            }
+
+            CountdownEvent CTE = new CountdownEvent(1);
+            var indexer = new MainIndexer(stopWords, charsToRemove, ToBeIndexedQueue, CTE);
+            Thread indexerThread = new Thread(() => indexer.CreateInverseIndexWriteToDB(true));
+            CTE.AddCount();
+            indexerThread.Start();
+            CTE.Signal();
+            CTE.Wait();
+        }
+
+        private static void DoSomeSearching()
+        {
+            Console.WriteLine("Search string:");
+            string input = Console.ReadLine();
+            Console.WriteLine(input);
+        }
+
+        private static void DoSomeCrawlingAndIndexing(int approxSites)
+        {
+            Crawler.SitesToCrawl = approxSites;
             CountdownEvent CTE = new CountdownEvent(1);
 
-            var crawler = new Crawler.Crawler(numFrontQueues, numBackQueues, timeBetweenHits, maxRobotAge, seed, ToBeIndexedQueue, CTE);
+            var crawler = new Crawler(numFrontQueues, numBackQueues, timeBetweenHits, maxRobotAge, seed, ToBeIndexedQueue, CTE);
             var indexer = new MainIndexer(stopWords, charsToRemove, ToBeIndexedQueue, CTE);
 
             Thread crawlerThread = new Thread(crawler.Crawl);
             CTE.AddCount();
 
-            Thread indexerThread = new Thread(indexer.CreateInverseIndexWriteToDB);
+            Thread indexerThread = new Thread(() => indexer.CreateInverseIndexWriteToDB(false));
             CTE.AddCount();
 
             crawlerThread.Start();
@@ -47,11 +78,9 @@ namespace Peter
 
             CTE.Signal();
             CTE.Wait();
-
-
-            Console.WriteLine("Completed");
-            Console.ReadKey();
         }
+
+
 
 
         //static void Main(string[] args)
@@ -70,7 +99,7 @@ namespace Peter
         //        TimeSpan maxRobotAge = TimeSpan.FromMinutes(5);
         //        var seed = new PrettyURL[] { new PrettyURL("newz.dk"), new PrettyURL("aau.dk"), new PrettyURL("politikken.dk") };
 
-        //        Crawler.Crawler crawler = new Crawler.Crawler(numFrontQueues, numBackQueues, timeBetweenHits, maxRobotAge, seed);
+        //        Indexer.Indexer crawler = new Indexer.Indexer(numFrontQueues, numBackQueues, timeBetweenHits, maxRobotAge, seed);
         //        var sites = crawler.CrawlTheWebAndAddToDB(sitesToCrawl);
         //        Console.WriteLine("Completed downloading");
         //    }
