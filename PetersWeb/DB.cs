@@ -38,7 +38,7 @@ namespace PetersWeb
             {
                 var tokenID = dbCon.Terms.Where(t => t.term1 == group.Key).FirstOrDefault();
 
-                 ////Does it already exist?
+                ////Does it already exist?
                 //if (tokenID != null)
                 //{
                 //    var termPage = dbCon.TermToPages
@@ -90,25 +90,11 @@ namespace PetersWeb
             });
 
             dbCon.Shingles.InsertAllOnSubmit(dbSHingles);
-
-            //var toInsert = shingles
-            //    .Select(s => new Shingle()
-            //    {
-            //        Page = page,
-            //        shingle1 = s
-            //    });
-            
-            //dbCon.Shingles.InsertAllOnSubmit(toInsert);
-
-            //var first = toInsert.First();
-            //var second = toInsert.Skip(1).First();
-
-            //dbCon.Shingles.InsertOnSubmit(first);
-            //dbCon.SubmitChanges();
-
-            //dbCon.Shingles.InsertOnSubmit(second);
-            //dbCon.SubmitChanges();
+            dbCon.SubmitChanges(); // latest change
         }
+
+
+
 
         public Page GetPageFromURL(string prettyURL)
         {
@@ -118,7 +104,6 @@ namespace PetersWeb
 
             return pages.FirstOrDefault();
         }
-
 
         public IEnumerable<Page> GetAllPages()
         {
@@ -158,6 +143,31 @@ namespace PetersWeb
                            select p.Shingles.Select(s => s.shingle1);
 
             return shingles;
+        }
+
+
+        public int TotalSitesInDB()
+        {
+            var siteCount = dbCon.Pages.Count();
+            return siteCount;
+        }
+
+        public int TermFrequencyInDocument(string term, string prettyURL)
+        {
+            var tf = GetPageFromURL(prettyURL).TermToPages
+                .Where(d => d.Term.term1 == term)
+                .Count();
+
+            return tf;
+        }
+
+        public int DocumentFrequency(string term)
+        {
+            var df = dbCon.TermToPages
+                .Where(t => t.Term.term1 == term)
+                .Count();
+
+            return df;
         }
     }
 }

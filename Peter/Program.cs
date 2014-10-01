@@ -29,12 +29,14 @@ namespace Peter
         {
             //DoSomeCrawlingAndIndexing(50);
             //IndexOnPagesInDB_IAMLAZY();
-            NewMethod();
+            //NewMethod();
+
+            DoSomeSearching();
 
             Console.WriteLine("Completed");
             Console.ReadKey();
         }
-
+        
         private static void NewMethod()
         {
             var terms = database.GetInvertedIndexForSingleToken("og");
