@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Peter;
 using URLStuff;
 using PetersWeb;
-using Peter;
 using System.Threading;
 using System.Collections.Concurrent;
 
@@ -22,18 +21,27 @@ namespace Peter
         private static int numBackQueues = 3;
         private static TimeSpan timeBetweenHits = TimeSpan.FromSeconds(1);
         private static TimeSpan maxRobotAge = TimeSpan.FromMinutes(5);
-        private static PrettyURL[] seed = new PrettyURL[] { new PrettyURL("newz.dk"), new PrettyURL("aau.dk"), new PrettyURL("politikken.dk") };
-
-        private static string[] stopWords = new string[] { "og", "i", "jeg", "det", "at", "en", "den", "til", "er", "som", "på", "de", "med", "han", "af", "for", "ikke", "der", "var", "mig", "sig", "men", "et", "har", "om", "vi", "min", "havde", "ham", "hun", "nu", "over", "da", "fra", "du", "ud", "sin", "dem", "os", "op", "man", "hans", "hvor", "eller", "hvad", "skal", "selv", "her", "alle", "vil", "blev", "kunne", "ind", "når", "være", "dog", "noget", "ville", "jo", "deres", "efter", "ned", "skulle", "denne", "end", "dette", "mit", "også", "under", "have", "dig", "anden", "hende", "mine", "alt", "meget", "sit", "sine", "vor", "mod", "disse", "hvis", "din", "nogle", "hos", "blive", "mange", "ad", "bliver", "hendes", "været", "thi", "jer", "sådan" };
-        private static char[] charsToRemove = new char[] { ',', '.', '?' };
+        //"og", 
+        private static string[] stopWords = new string[] { "i", "jeg", "det", "at", "en", "den", "til", "er", "som", "på", "de", "med", "han", "af", "for", "ikke", "der", "var", "mig", "sig", "men", "et", "har", "om", "vi", "min", "havde", "ham", "hun", "nu", "over", "da", "fra", "du", "ud", "sin", "dem", "os", "op", "man", "hans", "hvor", "eller", "hvad", "skal", "selv", "her", "alle", "vil", "blev", "kunne", "ind", "når", "være", "dog", "noget", "ville", "jo", "deres", "efter", "ned", "skulle", "denne", "end", "dette", "mit", "også", "under", "have", "dig", "anden", "hende", "mine", "alt", "meget", "sit", "sine", "vor", "mod", "disse", "hvis", "din", "nogle", "hos", "blive", "mange", "ad", "bliver", "hendes", "været", "thi", "jer", "sådan" };
+        private static char[] charsToRemove = new char[] { ',', '.', '?', ':', '\"' };
 
         static void Main(string[] args)
         {
-            //DoSomeCrawlingAndIndexing(100);
-            IndexOnPagesInDB_IAMLAZY();
+            DoSomeCrawlingAndIndexing(20);
+            //IndexOnPagesInDB_IAMLAZY();
+            NewMethod();
 
             Console.WriteLine("Completed");
             Console.ReadKey();
+        }
+
+        private static void NewMethod()
+        {
+            var terms = database.GetInvertedIndexForSingleToken("og");
+            foreach (var url in terms)
+            {
+                Console.WriteLine(url.pageID + " (" + database.TokenCountInURL(url.Page.url, url.Term.term1) + "): " + url.Page.url);
+            }
         }
 
         private static void IndexOnPagesInDB_IAMLAZY()
@@ -61,6 +69,13 @@ namespace Peter
 
         private static void DoSomeCrawlingAndIndexing(int approxSites)
         {
+            var dbPages = database.GetAllPages().
+                Select(p => new PrettyURL(p.url));
+
+            var seed = dbPages.Count() > 0 ?
+                dbPages :
+                new PrettyURL[] { new PrettyURL("newz.dk"), new PrettyURL("aau.dk"), new PrettyURL("politikken.dk") };
+
             Crawler.SitesToCrawl = approxSites;
             CountdownEvent CTE = new CountdownEvent(1);
 

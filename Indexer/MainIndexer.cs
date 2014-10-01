@@ -12,6 +12,8 @@ namespace Peter
 {
     public class MainIndexer
     {
+        private static string INDEXER = "indexer";
+
         public MainIndexer(IEnumerable<string> stopWords, IEnumerable<char> charsToRemove, ConcurrentQueue<Tuple<PrettyURL, string, DateTime>> toIndex, System.Threading.CountdownEvent cte)
         {
             StopWords = stopWords ?? Enumerable.Empty<string>();
@@ -38,9 +40,10 @@ namespace Peter
 
             while (true)
             {
+                pages++;
                 sb.Clear();
                 sb.Append("page: " + pages);
-                var site = TryToDequeueOtherwiseSignal();
+                var site = TryToDequeueOtherwiseSignal(fromDB);
                 if (site == null)
                 {
                     CTE.Signal();
@@ -65,11 +68,13 @@ namespace Peter
                 doc.LoadHtml(site.Item2);
                 var content = ReadContentFromHTMLDoc(doc);
                 var tokenized = Tokenizer(content);
-                var stopWordsRemoved = StopWordRemover(tokenized).ToArray();
-                var caseFolded = CaseFolder(stopWordsRemoved).ToArray();
-                var stemmed = Stemmer(caseFolded).ToArray();
+                var stopWordsRemoved = StopWordRemover(tokenized);
+                var caseFolded = CaseFolder(stopWordsRemoved);
+                var stemmed = Stemmer(caseFolded).OrderBy(s => s.Length);
 
                 sb.Append(", Stem: " + (int)watch.Elapsed.TotalMilliseconds);
+
+                //var interesting = string.Join(" ", stemmed);
 
 
                 watch.Restart();
@@ -78,6 +83,7 @@ namespace Peter
                 // maybe add but with html = null instead?
                 if (IsSiteContentCloseToExistingSite(shinglesOnDownladedSite))
                 {
+                    Debug.WriteLine("Had near-dup: " + site.Item1, INDEXER);
                     continue;
                 }
                 sb.Append(", cmp: " + (int)watch.Elapsed.TotalMilliseconds);
@@ -90,13 +96,11 @@ namespace Peter
                 //DataBase.InsertTokens(site.Item1.GetPrettyURL, stemmed);
 
                 DataBase.ManualTokenInserter(site.Item1.GetPrettyURL, stemmed);
-                DataBase.ManualTokenInserter(site.Item1.GetPrettyURL, stemmed);
                 DataBase.InsertShingles(site.Item1.GetPrettyURL, shinglesOnDownladedSite);
                 sb.Append(", insert: " + (int)watch.Elapsed.TotalMilliseconds);
                 sb.Append(", " + site.Item1);
 
                 Debug.WriteLine(sb.ToString());
-                pages++;
             }
         }
 
@@ -112,12 +116,12 @@ namespace Peter
             return false;
         }
 
-        private Tuple<PrettyURL, string, DateTime> TryToDequeueOtherwiseSignal()
+        private Tuple<PrettyURL, string, DateTime> TryToDequeueOtherwiseSignal(bool fromDB)
         {
             var site = default(Tuple<PrettyURL, string, DateTime>);
             bool success = false;
             // try to dq some times, then fail?
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 25; i++)
             {
                 success = ToBeIndexedQueue.TryDequeue(out site);
                 if (success)
@@ -126,7 +130,11 @@ namespace Peter
                 }
                 else
                 {
-                    System.Threading.Thread.Sleep(100);
+                    if (fromDB)
+                    {
+                        return null;
+                    }
+                    System.Threading.Thread.Sleep(1000);
                 }
             }
             return null;
@@ -134,30 +142,51 @@ namespace Peter
 
         private string ReadContentFromHTMLDoc(HtmlAgilityPack.HtmlDocument doc)
         {
-            var paragraphs = doc.DocumentNode.SelectNodes("//p");
+            var headers = ReadContent(doc, "h1");
+            var paragraphs = ReadContent(doc, "p");
 
-            if (paragraphs == null)
+            var allText = headers + " " + paragraphs;
+            return allText;
+        }
+
+        private string ReadContent(HtmlAgilityPack.HtmlDocument doc, string type)
+        {
+            var content = doc.DocumentNode.SelectNodes("//" + type);
+
+            if (content == null)
             {
                 return "";
             }
 
-            var innerTexts = paragraphs.Select(p => Danish.MakeDanish(p.InnerText));
-            var longParagraph = string.Join(" ", innerTexts);
+            var innerText = content.Select(c => Danish.MakeDanish(c.InnerText));
+            var longContent = string.Join(" ", innerText);
 
-            return longParagraph;
+            return longContent;
         }
 
         public IEnumerable<string> Tokenizer(string content)
         {
-            var charRemoved = new string(content.Where(c => !CharsToRemove.Contains(c)).ToArray()); // must be a better way
-            var tokenized = charRemoved.Split(' ');
+            //var charRemoved = new string(content.Where(c => !CharsToRemove.Contains(c)).ToArray()); // must be a better way
+            //var tokenized = charRemoved.Split(' ');
+
+            StringBuilder sb = new StringBuilder(content.Length);
+            foreach (char c in content)
+            {
+                if (!CharsToRemove.Contains(c))
+                {
+                    sb.Append(c);
+                }
+            }
+
+            var tokenized = sb.ToString().Split(' ');
 
             return tokenized;
         }
 
         public IEnumerable<string> StopWordRemover(IEnumerable<string> input)
         {
-            var stopWordRemoved = input.Except(StopWords);
+            //var stopWordRemoved = input.Except(StopWords);
+            var stopWordRemoved = input.Where(s => !StopWords.Contains(s));
             return stopWordRemoved;
         }
 

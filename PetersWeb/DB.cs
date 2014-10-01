@@ -25,42 +25,54 @@ namespace PetersWeb
             dbCon.SubmitChanges();
         }
 
-        //public void InsertTokens(string prettyURL, IEnumerable<string> tokens)
-        //{
-        //    foreach (var t in tokens)
-        //    {
-        //        dbCon.insertToken(t, prettyURL);
-        //    }
-        //}
-
-        // slow slow slow, but good enough for now
         public void ManualTokenInserter(string prettyURL, IEnumerable<string> tokens)
         {
             Page page = GetPageFromURL(prettyURL);
 
             var groupedTokens = from tt in tokens
                                 group tt by tt into grouped
+                                orderby grouped.Count() descending
                                 select grouped;
 
             foreach (var group in groupedTokens)
             {
-                var dbTermToPage = dbCon.TermToPages
-                    .Where(t => t.Term.term1 == group.Key)
-                    .FirstOrDefault();
+                var tokenID = dbCon.Terms.Where(t => t.term1 == group.Key).FirstOrDefault();
 
-                if (dbTermToPage == null)
+                // Does it already exist?
+                //if (tokenID != null)
+                //{
+                //    var termPage = dbCon.TermToPages
+                //                .Where(t => t.termID == tokenID.id && t.pageID == page.id)
+                //                .FirstOrDefault();
+
+                //    if (termPage != null)
+                //    {
+                //        termPage.count = group.Count();
+                //    }
+
+                //    continue;
+                //}
+                //else // did not exist
                 {
-                    TermToPage ttp = new TermToPage()
+                    if (tokenID == null)
                     {
+                        Term t = new Term()
+                        {
+                            term1 = group.Key
+                        };
+                        dbCon.Terms.InsertOnSubmit(t);
+                        dbCon.SubmitChanges();
+                    }
+
+                    tokenID = dbCon.Terms.Where(t => t.term1 == group.Key).FirstOrDefault();
+                    TermToPage tp = new TermToPage()
+                    {
+                        termID = tokenID.id,
                         count = group.Count(),
-                        Page = page,
-                        Term = new Term() { term1 = group.Key }
+                        pageID = page.id
                     };
-                    dbCon.TermToPages.InsertOnSubmit(ttp);
-                }
-                else
-                {
-                    dbTermToPage.count += group.Count();
+
+                    dbCon.TermToPages.InsertOnSubmit(tp);
                 }
             }
 
@@ -97,6 +109,19 @@ namespace PetersWeb
             return pages;
         }
 
+        public IEnumerable<TermToPage> GetInvertedIndexForSingleToken(string token)
+        {
+            var term = dbCon.Terms.Where(t => t.term1 == token).FirstOrDefault();
+            var pages = dbCon.TermToPages.Where(tp => tp.termID == term.id);
+            return pages;
+        }
+
+        public int TokenCountInURL(string prettyURL, string token)
+        {
+            var x = dbCon.TermToPages.Where(t => t.Page.url == prettyURL && t.Term.term1 == token).FirstOrDefault();
+            return x.count ?? 0;
+        }
+
         public IEnumerable<int> GetShinglesFromPrettyURL(string prettyURL)
         {
             var page = GetPageFromURL(prettyURL);
@@ -108,7 +133,6 @@ namespace PetersWeb
                 .Select(s => s.shingle1);
             return shingles;
         }
-
 
         public IEnumerable<IEnumerable<int>> GetAllShingleSets()
         {
