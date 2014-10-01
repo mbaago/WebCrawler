@@ -70,15 +70,12 @@ namespace Peter
                 var tokenized = Tokenizer(content);
                 var stopWordsRemoved = StopWordRemover(tokenized);
                 var caseFolded = CaseFolder(stopWordsRemoved);
-                var stemmed = Stemmer(caseFolded).OrderBy(s => s.Length);
+                var stemmed = Stemmer(caseFolded);
 
                 sb.Append(", Stem: " + (int)watch.Elapsed.TotalMilliseconds);
-
-                //var interesting = string.Join(" ", stemmed);
-
-
                 watch.Restart();
-                var shinglesOnDownladedSite = Jaccard_IAm.GetShinglesHashes(stemmed.Distinct().ToArray());
+
+                var shinglesOnDownladedSite = Jaccard_IAm.GetShinglesHashes(stemmed.ToArray());
                 // only added different site
                 // maybe add but with html = null instead?
                 if (IsSiteContentCloseToExistingSite(shinglesOnDownladedSite))
@@ -86,9 +83,10 @@ namespace Peter
                     Debug.WriteLine("Had near-dup: " + site.Item1, INDEXER);
                     continue;
                 }
-                sb.Append(", cmp: " + (int)watch.Elapsed.TotalMilliseconds);
 
+                sb.Append(", cmp: " + (int)watch.Elapsed.TotalMilliseconds);
                 watch.Restart();
+
                 if (!fromDB)
                 {
                     DataBase.InsertNewDownloadedPage(site.Item1.GetPrettyURL, site.Item2);
@@ -140,14 +138,14 @@ namespace Peter
 
         private string ReadContentFromHTMLDoc(HtmlAgilityPack.HtmlDocument doc)
         {
-            var headers = ReadContent(doc, "h1");
-            var paragraphs = ReadContent(doc, "p");
+            var headers = ReadContentType(doc, "h1");
+            var paragraphs = ReadContentType(doc, "p");
 
             var allText = headers + " " + paragraphs;
             return allText;
         }
 
-        private string ReadContent(HtmlAgilityPack.HtmlDocument doc, string type)
+        private string ReadContentType(HtmlAgilityPack.HtmlDocument doc, string type)
         {
             var content = doc.DocumentNode.SelectNodes("//" + type);
 
@@ -164,9 +162,6 @@ namespace Peter
 
         public IEnumerable<string> Tokenizer(string content)
         {
-            //var charRemoved = new string(content.Where(c => !CharsToRemove.Contains(c)).ToArray()); // must be a better way
-            //var tokenized = charRemoved.Split(' ');
-
             StringBuilder sb = new StringBuilder(content.Length);
             foreach (char c in content)
             {
@@ -177,13 +172,11 @@ namespace Peter
             }
 
             var tokenized = sb.ToString().Split(' ');
-
             return tokenized;
         }
 
         public IEnumerable<string> StopWordRemover(IEnumerable<string> input)
         {
-            //var stopWordRemoved = input.Except(StopWords);
             var stopWordRemoved = input.Where(s => !StopWords.Contains(s));
             return stopWordRemoved;
         }

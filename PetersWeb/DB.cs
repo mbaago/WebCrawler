@@ -146,6 +146,7 @@ namespace PetersWeb
             {
                 return Enumerable.Empty<int>();
             }
+
             var shingles = page.Shingles
                 .Select(s => s.shingle1);
             return shingles;

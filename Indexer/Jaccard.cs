@@ -19,18 +19,6 @@ namespace Peter
         double HowCloseBeforeDuplicate { get; set; }
         char[] SplitChars { get; set; }
 
-        //public bool IsNearDuplicate(IEnumerable<int> s1, string s2)
-        //{
-        //    var shingles2 = GetShinglesFromSpaceSeperatedString(s2);
-        //    return IsNearDuplicate(s1, shingles2);
-        //}
-
-        //public bool IsNearDuplicate(string[] s1, string[] s2)
-        //{
-        //    double jaccard = GetJaccardSimilarity(s1, s2);
-        //    return jaccard >= HowCloseBeforeDuplicate;
-        //}
-
         public bool IsNearDuplicate(IEnumerable<int> s1, IEnumerable<int> s2)
         {
             double jaccard = GetJaccardSimilarity(s1, s2);
@@ -49,37 +37,6 @@ namespace Peter
 
             return (double)cap / cup;
         }
-
-        //public double GetJaccardSimilarity(string[] s1, string[] s2)
-        //{
-        //    if (s1.Length < ShingleSize || s2.Length < ShingleSize)
-        //    {
-        //        return double.NaN;
-        //    }
-
-        //    var shingles1 = GetShinglesHashes(s1);
-        //    var shingles2 = GetShinglesHashes(s2);
-
-        //    int cap = shingles1.Intersect(shingles2).Count();
-        //    int cup = shingles1.Union(shingles2).Count();
-
-        //    return (double)cap / cup;
-        //}
-
-        ///// <summary>
-        ///// Calculate the Jaccard similarity between two strings.
-        ///// </summary>
-        ///// <param name="s1"></param>
-        ///// <param name="s2"></param>
-        ///// <param name="shingleSize">How many words in a shingle.</param>
-        ///// <returns>The Jaccard similarity between the two input strings.</returns>
-        //public double GetJaccardSimilarity(string s1, string s2)
-        //{
-        //    var wordsInS1 = getWordsInSentence(s1);
-        //    var wordsInS2 = getWordsInSentence(s2);
-
-        //    return GetJaccardSimilarity(wordsInS1, wordsInS2);
-        //}
 
         public IEnumerable<int> GetShinglesFromSpaceSeperatedString(string s)
         {
@@ -129,7 +86,7 @@ namespace Peter
                 builder.Clear();
             }
 
-            return shingles;
+            return shingles.Distinct();
         }
     }
 }

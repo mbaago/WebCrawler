@@ -36,12 +36,12 @@ namespace PetersWeb
     partial void InsertTermToPage(TermToPage instance);
     partial void UpdateTermToPage(TermToPage instance);
     partial void DeleteTermToPage(TermToPage instance);
-    partial void InsertShingle(Shingle instance);
-    partial void UpdateShingle(Shingle instance);
-    partial void DeleteShingle(Shingle instance);
     partial void InsertTerm(Term instance);
     partial void UpdateTerm(Term instance);
     partial void DeleteTerm(Term instance);
+    partial void InsertShingle(Shingle instance);
+    partial void UpdateShingle(Shingle instance);
+    partial void DeleteShingle(Shingle instance);
     #endregion
 		
 		public DBContextDataContext() : 
@@ -90,19 +90,19 @@ namespace PetersWeb
 			}
 		}
 		
-		public System.Data.Linq.Table<Shingle> Shingles
-		{
-			get
-			{
-				return this.GetTable<Shingle>();
-			}
-		}
-		
 		public System.Data.Linq.Table<Term> Terms
 		{
 			get
 			{
 				return this.GetTable<Term>();
+			}
+		}
+		
+		public System.Data.Linq.Table<Shingle> Shingles
+		{
+			get
+			{
+				return this.GetTable<Shingle>();
 			}
 		}
 		
@@ -503,6 +503,120 @@ namespace PetersWeb
 		}
 	}
 	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Terms")]
+	public partial class Term : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _id;
+		
+		private string _term1;
+		
+		private EntitySet<TermToPage> _TermToPages;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnidChanging(int value);
+    partial void OnidChanged();
+    partial void Onterm1Changing(string value);
+    partial void Onterm1Changed();
+    #endregion
+		
+		public Term()
+		{
+			this._TermToPages = new EntitySet<TermToPage>(new Action<TermToPage>(this.attach_TermToPages), new Action<TermToPage>(this.detach_TermToPages));
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int id
+		{
+			get
+			{
+				return this._id;
+			}
+			set
+			{
+				if ((this._id != value))
+				{
+					this.OnidChanging(value);
+					this.SendPropertyChanging();
+					this._id = value;
+					this.SendPropertyChanged("id");
+					this.OnidChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Name="term", Storage="_term1", DbType="VarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string term1
+		{
+			get
+			{
+				return this._term1;
+			}
+			set
+			{
+				if ((this._term1 != value))
+				{
+					this.Onterm1Changing(value);
+					this.SendPropertyChanging();
+					this._term1 = value;
+					this.SendPropertyChanged("term1");
+					this.Onterm1Changed();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Term_TermToPage", Storage="_TermToPages", ThisKey="id", OtherKey="termID")]
+		public EntitySet<TermToPage> TermToPages
+		{
+			get
+			{
+				return this._TermToPages;
+			}
+			set
+			{
+				this._TermToPages.Assign(value);
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+		
+		private void attach_TermToPages(TermToPage entity)
+		{
+			this.SendPropertyChanging();
+			entity.Term = this;
+		}
+		
+		private void detach_TermToPages(TermToPage entity)
+		{
+			this.SendPropertyChanging();
+			entity.Term = null;
+		}
+	}
+	
 	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Shingles")]
 	public partial class Shingle : INotifyPropertyChanging, INotifyPropertyChanged
 	{
@@ -627,120 +741,6 @@ namespace PetersWeb
 			{
 				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
-		}
-	}
-	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Terms")]
-	public partial class Term : INotifyPropertyChanging, INotifyPropertyChanged
-	{
-		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private int _id;
-		
-		private string _term1;
-		
-		private EntitySet<TermToPage> _TermToPages;
-		
-    #region Extensibility Method Definitions
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void OnidChanging(int value);
-    partial void OnidChanged();
-    partial void Onterm1Changing(string value);
-    partial void Onterm1Changed();
-    #endregion
-		
-		public Term()
-		{
-			this._TermToPages = new EntitySet<TermToPage>(new Action<TermToPage>(this.attach_TermToPages), new Action<TermToPage>(this.detach_TermToPages));
-			OnCreated();
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
-		public int id
-		{
-			get
-			{
-				return this._id;
-			}
-			set
-			{
-				if ((this._id != value))
-				{
-					this.OnidChanging(value);
-					this.SendPropertyChanging();
-					this._id = value;
-					this.SendPropertyChanged("id");
-					this.OnidChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Name="term", Storage="_term1", DbType="VarChar(MAX) NOT NULL", CanBeNull=false)]
-		public string term1
-		{
-			get
-			{
-				return this._term1;
-			}
-			set
-			{
-				if ((this._term1 != value))
-				{
-					this.Onterm1Changing(value);
-					this.SendPropertyChanging();
-					this._term1 = value;
-					this.SendPropertyChanged("term1");
-					this.Onterm1Changed();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Term_TermToPage", Storage="_TermToPages", ThisKey="id", OtherKey="termID")]
-		public EntitySet<TermToPage> TermToPages
-		{
-			get
-			{
-				return this._TermToPages;
-			}
-			set
-			{
-				this._TermToPages.Assign(value);
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-		
-		private void attach_TermToPages(TermToPage entity)
-		{
-			this.SendPropertyChanging();
-			entity.Term = this;
-		}
-		
-		private void detach_TermToPages(TermToPage entity)
-		{
-			this.SendPropertyChanging();
-			entity.Term = null;
 		}
 	}
 }

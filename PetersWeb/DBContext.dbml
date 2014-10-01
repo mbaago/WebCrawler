@@ -19,18 +19,18 @@
       <Association Name="Term_TermToPage" Member="Term" ThisKey="termID" OtherKey="id" Type="Term" IsForeignKey="true" />
     </Type>
   </Table>
-  <Table Name="dbo.Shingles" Member="Shingles">
-    <Type Name="Shingle">
-      <Column Name="url" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
-      <Column Name="shingle" Member="shingle1" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
-      <Association Name="Page_Shingle" Member="Page" ThisKey="url" OtherKey="id" Type="Page" IsForeignKey="true" />
-    </Type>
-  </Table>
   <Table Name="dbo.Terms" Member="Terms">
     <Type Name="Term">
       <Column Name="id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
       <Column Name="term" Member="term1" Type="System.String" DbType="VarChar(MAX) NOT NULL" CanBeNull="false" />
       <Association Name="Term_TermToPage" Member="TermToPages" ThisKey="id" OtherKey="termID" Type="TermToPage" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Shingles" Member="Shingles">
+    <Type Name="Shingle">
+      <Column Name="url" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="shingle" Member="shingle1" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Association Name="Page_Shingle" Member="Page" ThisKey="url" OtherKey="id" Type="Page" IsForeignKey="true" />
     </Type>
   </Table>
   <Function Name="dbo.DeleteAllPages" Method="DeleteAllPages">
