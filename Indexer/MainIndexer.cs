@@ -78,7 +78,7 @@ namespace Peter
 
 
                 watch.Restart();
-                var shinglesOnDownladedSite = Jaccard_IAm.GetShinglesHashes(stemmed.ToArray());
+                var shinglesOnDownladedSite = Jaccard_IAm.GetShinglesHashes(stemmed.Distinct().ToArray());
                 // only added different site
                 // maybe add but with html = null instead?
                 if (IsSiteContentCloseToExistingSite(shinglesOnDownladedSite))
@@ -93,8 +93,6 @@ namespace Peter
                 {
                     DataBase.InsertNewDownloadedPage(site.Item1.GetPrettyURL, site.Item2);
                 }
-                //DataBase.InsertTokens(site.Item1.GetPrettyURL, stemmed);
-
                 DataBase.ManualTokenInserter(site.Item1.GetPrettyURL, stemmed);
                 DataBase.InsertShingles(site.Item1.GetPrettyURL, shinglesOnDownladedSite);
                 sb.Append(", insert: " + (int)watch.Elapsed.TotalMilliseconds);

@@ -27,7 +27,7 @@ namespace Peter
 
         static void Main(string[] args)
         {
-            DoSomeCrawlingAndIndexing(20);
+            //DoSomeCrawlingAndIndexing(50);
             //IndexOnPagesInDB_IAMLAZY();
             NewMethod();
 

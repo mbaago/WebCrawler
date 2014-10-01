@@ -38,7 +38,7 @@ namespace PetersWeb
             {
                 var tokenID = dbCon.Terms.Where(t => t.term1 == group.Key).FirstOrDefault();
 
-                // Does it already exist?
+                 ////Does it already exist?
                 //if (tokenID != null)
                 //{
                 //    var termPage = dbCon.TermToPages
@@ -83,14 +83,31 @@ namespace PetersWeb
         {
             var page = GetPageFromURL(prettyURL);
 
-            var toInsert = shingles
-                .Select(s => new Shingle()
-                {
-                    Page = page,
-                    shingle1 = s
-                });
+            var dbSHingles = shingles.Select(s => new Shingle()
+            {
+                url = page.id,
+                shingle1 = s
+            });
 
-            dbCon.Shingles.InsertAllOnSubmit(toInsert);
+            dbCon.Shingles.InsertAllOnSubmit(dbSHingles);
+
+            //var toInsert = shingles
+            //    .Select(s => new Shingle()
+            //    {
+            //        Page = page,
+            //        shingle1 = s
+            //    });
+            
+            //dbCon.Shingles.InsertAllOnSubmit(toInsert);
+
+            //var first = toInsert.First();
+            //var second = toInsert.Skip(1).First();
+
+            //dbCon.Shingles.InsertOnSubmit(first);
+            //dbCon.SubmitChanges();
+
+            //dbCon.Shingles.InsertOnSubmit(second);
+            //dbCon.SubmitChanges();
         }
 
         public Page GetPageFromURL(string prettyURL)
