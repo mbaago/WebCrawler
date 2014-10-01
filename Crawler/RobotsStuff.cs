@@ -31,12 +31,12 @@ namespace Crawler
         public TimeSpan MaxAge { get; set; }
 
         /// <summary>
-        /// Parse robots.txt from a specific url.
+        /// Parse robots.txt from a specific prettyURL.
         /// Assumes robots.txt is properly formatted.
         /// </summary>
-        /// <param name="url"></param>
+        /// <param name="prettyURL"></param>
         /// <param name="robotsContent"></param>
-        /// <returns>A regex to determine if a url is disallowed.</returns>
+        /// <returns>A regex to determine if a prettyURL is disallowed.</returns>
         private Regex CalcRobotRegexForDomain(PrettyURL url, IEnumerable<string> robotsContent)
         {
             if (CachedRegexes.ContainsKey(url.GetDomain) && DateTime.Now - CachedRegexes[url.GetDomain].Item1 < MaxAge)
@@ -70,7 +70,7 @@ namespace Crawler
             foreach (var s in disallow.Skip(1))
             {
                 regPattern.Append('|');
-                //regPattern.Append(url);
+                //regPattern.Append(prettyURL);
                 regPattern.Append(s);
             }
             regPattern.Append(')');
@@ -91,7 +91,7 @@ namespace Crawler
                 // Too old?
                 if (DateTime.Now - CachedRegexes[url.GetDomain].Item1 > MaxAge)
                 {
-                    //System.Diagnostics.Debug.WriteLine("Old robot: " + url, "ROBOT");
+                    //System.Diagnostics.Debug.WriteLine("Old robot: " + prettyURL, "ROBOT");
                     var robotContent = DownloadRobotContent(url).Split('\n');
 
                     var regex = CalcRobotRegexForDomain(url, robotContent);

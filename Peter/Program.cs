@@ -30,34 +30,33 @@ namespace Peter
 
         static void Main(string[] args)
         {
-            Crawler.Crawler crawler = new Crawler.Crawler(numFrontQueues, numBackQueues, timeBetweenHits, maxRobotAge, seed, ToBeIndexedQueue);
-            MainIndexer indexer = new MainIndexer(stopWords, charsToRemove);
+            Crawler.Crawler.SitesToCrawl = sitesToCrawl;
+            CountdownEvent CTE = new CountdownEvent(1);
+
+            var crawler = new Crawler.Crawler(numFrontQueues, numBackQueues, timeBetweenHits, maxRobotAge, seed, ToBeIndexedQueue, CTE);
+            var indexer = new MainIndexer(stopWords, charsToRemove, ToBeIndexedQueue, CTE);
 
             Thread crawlerThread = new Thread(crawler.Crawl);
-            Thread stopCrawlerThread = new Thread(TellStopCrawling);
+            CTE.AddCount();
+
+            Thread indexerThread = new Thread(indexer.CreateInverseIndexWriteToDB);
+            CTE.AddCount();
 
             crawlerThread.Start();
-            stopCrawlerThread.Start();
+            indexerThread.Start();
 
-            Console.WriteLine("Waiting for completion");
-            Console.ReadKey();
-        }
+            CTE.Signal();
+            CTE.Wait();
 
-        private static void TellStopCrawling()
-        {
-            while (Crawler.Crawler.SitesCrawledSoFar < sitesToCrawl)
-            {
-                System.Threading.Thread.Sleep(100);
-            }
 
-            Crawler.Crawler.ContinueCrawling = false;
             Console.WriteLine("Completed");
+            Console.ReadKey();
         }
 
 
         //static void Main(string[] args)
         //{
-        //    //database.clearPages();
+        //    //database.DeleteAllPages();
         //    //return;
 
         //    if (database.GetAllPages().Count() == 0)
@@ -80,7 +79,7 @@ namespace Peter
         //    var stopWords = new string[] { "og", "i", "jeg", "det", "at", "en", "den", "til", "er", "som", "på", "de", "med", "han", "af", "for", "ikke", "der", "var", "mig", "sig", "men", "et", "har", "om", "vi", "min", "havde", "ham", "hun", "nu", "over", "da", "fra", "du", "ud", "sin", "dem", "os", "op", "man", "hans", "hvor", "eller", "hvad", "skal", "selv", "her", "alle", "vil", "blev", "kunne", "ind", "når", "være", "dog", "noget", "ville", "jo", "deres", "efter", "ned", "skulle", "denne", "end", "dette", "mit", "også", "under", "have", "dig", "anden", "hende", "mine", "alt", "meget", "sit", "sine", "vor", "mod", "disse", "hvis", "din", "nogle", "hos", "blive", "mange", "ad", "bliver", "hendes", "været", "thi", "jer", "sådan" };
         //    var charsToRemove = new char[] { ',', '.', '?' };
         //    MainIndexer indexer = new MainIndexer(stopWords, charsToRemove);
-        //    var index = indexer.CreateInverseIndex();
+        //    var index = indexer.CreateInverseIndexWriteToDB();
         //    Console.WriteLine("Indexing completed");
 
         //    Console.WriteLine(index.Select(t => t.Value.Count).Sum());

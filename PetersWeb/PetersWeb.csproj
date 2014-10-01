@@ -41,6 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DB.cs" />
+    <Compile Include="DBContext.cs">
+      <DependentUpon>DBContext.dbml</DependentUpon>
+    </Compile>
     <Compile Include="DBContext.designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

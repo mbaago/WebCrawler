@@ -16,8 +16,10 @@ namespace Crawler
     {
         private static object _siteCrawledLock = new object();
         private static object _continueCrawlLock = new object();
-
         private static int _SitesCrawledSoFar = 0;
+        private static bool _ContinueCrawling = true;
+        private static int _SitesToCrawl = 1000;
+
         public static int SitesCrawledSoFar
         {
             get
@@ -35,38 +37,44 @@ namespace Crawler
                 }
             }
         }
-        private static bool _ContinueCrawling;
+        /// <summary>
+        /// continue && sitescrawled < tocrawl
+        /// </summary>
         public static bool ContinueCrawling
         {
             get
             {
                 lock (_continueCrawlLock)
                 {
-                    return _ContinueCrawling;
+                    return _ContinueCrawling && SitesCrawledSoFar < SitesToCrawl;
                 }
             }
-            set {
+            set
+            {
                 lock (_continueCrawlLock)
                 {
                     _ContinueCrawling = value;
                 }
             }
         }
+        public static int SitesToCrawl
+        {
+            get { return Crawler._SitesToCrawl; }
+            set { Crawler._SitesToCrawl = value; }
+        }
 
         private DB DataBase = new DB();
-
         private ConcurrentQueue<Tuple<PrettyURL, string, DateTime>> CrawledQueue { get; set; }
         private RobotsStuff Robot_IAm { get; set; }
         private Mercator Mercator_IAm { get; set; }
+        private System.Threading.CountdownEvent CTE { get; set; }
 
-
-        public Crawler(int numFrontQueues, int numBackQueues, TimeSpan timebetweenVisits, TimeSpan maxAgeOfRobots, IEnumerable<PrettyURL> seed, ConcurrentQueue<Tuple<PrettyURL, string, DateTime>> queue)
+        public Crawler(int numFrontQueues, int numBackQueues, TimeSpan timebetweenVisits, TimeSpan maxAgeOfRobots, IEnumerable<PrettyURL> seed, ConcurrentQueue<Tuple<PrettyURL, string, DateTime>> queue, System.Threading.CountdownEvent cte)
         {
             Robot_IAm = new RobotsStuff(maxAgeOfRobots);
             Mercator_IAm = new Mercator(numFrontQueues, numBackQueues, timebetweenVisits, seed);
             CrawledQueue = queue;
-
-            ContinueCrawling = true;
+            CTE = cte;
         }
 
         public void Crawl()
@@ -87,6 +95,8 @@ namespace Crawler
                     Mercator_IAm.AddURLToFrontQueue(link);
                 }
             }
+
+            CTE.Signal();
         }
 
         public string DownloadHTML(PrettyURL url)
@@ -161,12 +171,12 @@ namespace Crawler
         //    {
         //        watch.Restart();
 
-        //        var url = Mercator_IAm.GetURLToCrawl();
+        //        var prettyURL = Mercator_IAm.GetURLToCrawl();
 
         //        // check with robot
-        //        if (Robot_IAm.IsVisitAllowed(url))
+        //        if (Robot_IAm.IsVisitAllowed(prettyURL))
         //        {
-        //            var html = DownloadHTML(url);
+        //            var html = DownloadHTML(prettyURL);
         //            if (html == null)
         //            {
         //                continue;
@@ -176,14 +186,14 @@ namespace Crawler
         //            dupTime.Restart();
         //            if (IsNearDuplicateOfAlreadyAddedSite(html))
         //            {
-        //                hasNearDuplicate.Add(url);
+        //                hasNearDuplicate.Add(prettyURL);
         //                continue;
         //            }
         //            dupTime.Stop();
 
-        //            DataBase.InsertNewDownloadedPage(url.GetPrettyURL, html);
+        //            DataBase.InsertNewDownloadedPage(prettyURL.GetPrettyURL, html);
 
-        //            var links = ExtractLinksFromHTML(url, html);
+        //            var links = ExtractLinksFromHTML(prettyURL, html);
         //            foreach (var link in links)
         //            {
         //                Mercator_IAm.AddURLToFrontQueue(link);
@@ -191,13 +201,13 @@ namespace Crawler
 
         //            if (print)
         //            {
-        //                Console.WriteLine(sitesVisited + "\t" + url);
+        //                Console.WriteLine(sitesVisited + "\t" + prettyURL);
         //            }
         //        }
 
         //        watch.Stop();
-        //        times[url.GetDomain] = watch.Elapsed;
-        //        Console.WriteLine(sitesVisited + "\t" + (int)watch.Elapsed.TotalMilliseconds + "\t" + (int)dupTime.Elapsed.TotalMilliseconds + "\t" + url);
+        //        times[prettyURL.GetDomain] = watch.Elapsed;
+        //        Console.WriteLine(sitesVisited + "\t" + (int)watch.Elapsed.TotalMilliseconds + "\t" + (int)dupTime.Elapsed.TotalMilliseconds + "\t" + prettyURL);
         //        Console.Title = totalTime.Elapsed.ToString();
         //        sitesVisited++;
         //    }

@@ -22,19 +22,19 @@ namespace PetersWeb
 
         public void InsertShingles(string prettyURL, IEnumerable<int> shingles)
         {
-            // slet all shingles
+            throw new NotImplementedException();
         }
 
-        public Page getPageOnUrl(string url)
+        public Page GetPageFromURL(string prettyURL)
         {
             var pages = from p in dbCon.Pages
-                        where p.url.ToString() == url
+                        where p.url.ToString() == prettyURL
                         select p;
 
             return pages.FirstOrDefault();
         }
 
-        public void clearPages()
+        public void DeleteAllPages()
         {
             dbCon.DeleteAllPages();
         }
@@ -42,13 +42,12 @@ namespace PetersWeb
         public IEnumerable<Page> GetAllPages()
         {
             var pages = dbCon.Pages;
-
             return pages;
         }
 
         public IEnumerable<int> GetShinglesFromPrettyURL(string prettyURL)
         {
-            var page = getPageOnUrl(prettyURL);
+            var page = GetPageFromURL(prettyURL);
             if (page == null)
             {
                 return Enumerable.Empty<int>();
@@ -61,16 +60,12 @@ namespace PetersWeb
             return shingles;
         }
 
-        public string GetSiteContentFromPrettyURL(string prettyURL)
+        public void InsertTokens(string prettyURL, IEnumerable<string> tokens)
         {
-            var page = getPageOnUrl(prettyURL);
-            //return dbCon.PageContents
-            //    .Where(p => p.id == page.id)
-            //    .Select(p => p.pageContent1)
-            //    .FirstOrDefault();
-
-
-            throw new NotImplementedException();
+            foreach (var t in tokens)
+            {
+                dbCon.insertToken(t, prettyURL);
+            }
         }
     }
 }
