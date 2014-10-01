@@ -52,11 +52,8 @@ namespace PetersWeb
             {
                 return Enumerable.Empty<int>();
             }
-
-            var shingles = from p in dbCon.Shingles
-                           where p.url == page.id
-                           select p.shingle1;
-
+            var shingles = page.Shingles
+                .Select(s => s.shingle1);
             return shingles;
         }
 

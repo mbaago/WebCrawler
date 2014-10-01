@@ -45,6 +45,8 @@ namespace Indexer
                 Page page = DataBase.GetPageFromURL(site.Item1.GetPrettyURL);
                 if (page != null)
                 {
+                    var existingShingles = DataBase.GetShinglesFromPrettyURL(site.Item1.GetPrettyURL);
+
                     // get next site. in here, check if update needed.
                     continue;
                 }
@@ -59,6 +61,11 @@ namespace Indexer
 
                 DataBase.InsertTokens(site.Item1.GetPrettyURL, stemmed);
             }
+        }
+
+        private bool IsSiteContentCloseToExistingSite()
+        {
+            throw new NotImplementedException();
         }
 
         private Tuple<PrettyURL, string, DateTime> TryToDequeueOtherwiseSignal()
