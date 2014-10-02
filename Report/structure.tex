@@ -1,0 +1,11 @@
+\section{Structure}
+The overall structure of our project is as follows:
+
+A crawler instance crawls around, and enqueues downloaded sites to a queue. The crawler feeds itself with new links extracted from the downloaded sites.
+
+An indexer instance dequeues downloaded sites from the queue, and indexes them, saving the information to an MSSQL database.
+
+A searcher instance allows the user to search in the index.
+
+\section{General information}\label{sec:rem-chars}
+removed characters

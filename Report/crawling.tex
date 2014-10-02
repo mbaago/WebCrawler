@@ -1,35 +1,18 @@
 \section{Crawling}
-mercator handles all url stuff
-
-Our crawler is implemented in several classes:
+Our crawler is implemented in several classes, and is almost able to be multithreaded (it is only spawned in a single thread, as changes would be necessary to be polite otherwise):
 \begin{itemize}
 	\item \texttt{Crawler}
 	\item \texttt{Mercator}
 	\item \texttt{RobotStuff}
-	\item \texttt{PrettyURL}
 \end{itemize}
 
 \subsection{Crawler}
-This class gets an URL to crawl for the mercator class, and if the URL should be downloaded, it does so, saves the content, extracts the links and passes them on to the mercator. (handle jaccard)
+This class gets an URL to crawl from the mercator class and downloads it. The URL and downloaded content are enqueued for the indexer. A not-very-scientific test showed that downloading and enqueuing 500 .dk, starting with the seed (\url{newz.dk}, \url{aau.dk}, \url{politikken.dk}) sites took 4 minutes and 33 seconds on a 20/3 Mbit Stofa connection.
 
 \subsection{Mercator}
-This class is the implementation of the mercator scheme. It keeps a list of all URLs that have, at some point, been in a frontqueue, and only adds new URLs to a frontqueue if they are not in that list.
+This class is the implementation of the mercator scheme. It keeps a list of all URLs that have, at some point, been in a frontqueue, and only adds new URLs to a frontqueue if they are not in that list. It is implemented to use a custom number of front and back queues: we use 10 and 3, and use randomness to determine where new URLs go.
 
+When the crawler asks for a page, it returns the oldest domain from a backqueue, sleeping if necessary, thereby implementing politeness. The mercator only returns URLs allowed from a domains robots.txt.
 
-get url from merc
-if visit okay
-	download
-	get urls
-		add to merc
-		
-		
-robot:
-	regex
-	cache
-	when asked if visit okay:
-		download if not in cache -> might visit domain twice, but only case!
-
-
-jaccard in indexer?
-
-only danish
+\subsection{RobotStuff}
+This class handles robots.txt. When it is asked if it is allowed to visit and URL, it first determines if the robots.txt for that domain is not downloaded or too old. If so, the file is downloaded. It then determines if the URL may be visited.

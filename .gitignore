@@ -21,3 +21,4 @@
 *.gz
 /Searcher/bin/Debug
 /Searcher/obj/Debug
+*.out

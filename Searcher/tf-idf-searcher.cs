@@ -18,11 +18,13 @@ namespace Peter
             Jaccard_IAm = new Jaccard(4, 0.9, null);
         }
 
-        public IEnumerable<string> SearchAndGetURLs(string query)
+        public IEnumerable<KeyValuePair<string, double>> SearchAndGetURLs(string query)
         {
             var answer = CosineScore(query);
 
-            var sorted = answer.OrderByDescending(k => k.Value).Take(10).Select(k => k.Key);
+            var sorted = answer
+                .OrderByDescending(k => k.Value)
+                .TakeWhile(s => s.Value > 0);
 
             return sorted;
         }
@@ -59,6 +61,7 @@ namespace Peter
         {
             Dictionary<string, double> Scores = new Dictionary<string, double>();
             Dictionary<string, double> Length = new Dictionary<string, double>();
+            var wordsInQuery = Jaccard_IAm.getWordsInSentence(query);
 
             //var allTerms = Database.GetAllTerms();
             //foreach (var doc in Database.GetAllPages())
@@ -75,10 +78,17 @@ namespace Peter
 
             foreach (var doc in Database.GetAllPages())
             {
-                Length[doc.url] = 1;
+                int sum = 0;
+                foreach (var term in wordsInQuery)
+                {
+                    int val = Database.TermFrequencyInDocument(term, doc.url);
+                    sum += val * val;
+                }
+
+                double sq = Math.Sqrt(sum);
+                Length[doc.url] = 1 / sq;
             }
 
-            var wordsInQuery = Jaccard_IAm.getWordsInSentence(query);
 
             foreach (var word in wordsInQuery)
             {
@@ -97,7 +107,7 @@ namespace Peter
 
             foreach (var item in Length)
             {
-                Scores[item.Key] = item.Value / Length[item.Key];
+                //Scores[item.Key] = item.Value / Length[item.Key];
             }
 
             return Scores;

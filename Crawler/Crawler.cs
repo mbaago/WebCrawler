@@ -89,13 +89,13 @@ namespace Peter
                 CrawledQueue.Enqueue(toQueue);
                 SitesCrawledSoFar++;
 
-                //Debug.WriteLine("Downloaded " + site.GetPrettyURL, CRAWLER);
-
                 var links = ExtractLinksFromHTML(site, html);
                 foreach (var link in links)
                 {
                     Mercator_IAm.AddURLToFrontQueue(link);
                 }
+
+                Debug.WriteLine("Site " + SitesCrawledSoFar + ": " + site.GetPrettyURL, CRAWLER);
             }
 
             CTE.Signal();
@@ -154,106 +154,5 @@ namespace Peter
 
             return urls;
         }
-
-        //private Dictionary<string, string> DoTheCrawl_SaveToDB(int numberOfSitesToVisit, bool print)
-        //{
-        //    Stopwatch watch = new Stopwatch();
-        //    Stopwatch totalTime = new Stopwatch();
-        //    Stopwatch dupTime = new Stopwatch();
-
-        //    Dictionary<string, TimeSpan> times = new Dictionary<string, TimeSpan>();
-        //    List<PrettyURL> hasNearDuplicate = new List<PrettyURL>();
-
-        //    Dictionary<string, string> result = new Dictionary<string, string>();
-        //    int sitesVisited = 0;
-
-        //    totalTime.Start();
-
-        //    while (sitesVisited < numberOfSitesToVisit)
-        //    {
-        //        watch.Restart();
-
-        //        var prettyURL = Mercator_IAm.GetURLToCrawl();
-
-        //        // check with robot
-        //        if (Robot_IAm.IsVisitAllowed(prettyURL))
-        //        {
-        //            var html = DownloadHTML(prettyURL);
-        //            if (html == null)
-        //            {
-        //                continue;
-        //            }
-
-        //            // check for near dups
-        //            dupTime.Restart();
-        //            if (IsNearDuplicateOfAlreadyAddedSite(html))
-        //            {
-        //                hasNearDuplicate.Add(prettyURL);
-        //                continue;
-        //            }
-        //            dupTime.Stop();
-
-        //            DataBase.InsertNewDownloadedPage(prettyURL.GetPrettyURL, html);
-
-        //            var links = ExtractLinksFromHTML(prettyURL, html);
-        //            foreach (var link in links)
-        //            {
-        //                Mercator_IAm.AddURLToFrontQueue(link);
-        //            }
-
-        //            if (print)
-        //            {
-        //                Console.WriteLine(sitesVisited + "\t" + prettyURL);
-        //            }
-        //        }
-
-        //        watch.Stop();
-        //        times[prettyURL.GetDomain] = watch.Elapsed;
-        //        Console.WriteLine(sitesVisited + "\t" + (int)watch.Elapsed.TotalMilliseconds + "\t" + (int)dupTime.Elapsed.TotalMilliseconds + "\t" + prettyURL);
-        //        Console.Title = totalTime.Elapsed.ToString();
-        //        sitesVisited++;
-        //    }
-
-        //    return result;
-        //}
-
-        //private bool IsNearDuplicateOfAlreadyAddedSite(string html)
-        //{
-        //    // smid html i db
-        //    var input = GetHTMLContent(html);
-
-        //    // smid shingle hashes i db?
-        //    foreach (var site in DataBase.GetAllPages())
-        //    {
-        //        var compareWith = GetHTMLContent(site.html);
-
-        //        if (IAMJACCARD.IsNearDuplicate(compareWith, input))
-        //        {
-        //            return true;
-        //        }
-        //    }
-
-        //    return false;
-        //}
-
-        //private string GetHTMLContent(string html)
-        //{
-        //    HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-        //    doc.LoadHtml(html);
-
-        //    var a = doc.DocumentNode.SelectNodes("//p");
-        //    if (a == null)
-        //    {
-        //        return "";
-        //    }
-        //    var b = a.Select(p => p.InnerText);
-
-
-        //    var content = string.Join(" ", b);
-
-        //    return content;
-        //}
-
-
     }
 }

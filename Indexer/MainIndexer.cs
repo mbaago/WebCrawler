@@ -54,9 +54,6 @@ namespace Peter
                 {
                     continue;
                 }
-
-                //Debug.WriteLine("Indexer got " + site.Item1);
-
                 // we skip if site is already in db. maybe check for age instead?
                 Page page = DataBase.GetPageFromURL(site.Item1.GetPrettyURL);
                 if (page != null && !fromDB)
@@ -96,7 +93,7 @@ namespace Peter
                 sb.Append(", insert: " + (int)watch.Elapsed.TotalMilliseconds);
                 sb.Append(", " + site.Item1);
 
-                Debug.WriteLine(sb.ToString());
+                Debug.WriteLine(sb.ToString(), INDEXER);
             }
         }
 

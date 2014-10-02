@@ -159,11 +159,14 @@ namespace PetersWeb
 
         public int TermFrequencyInDocument(string term, string prettyURL)
         {
-            var tf = GetPageFromURL(prettyURL).TermToPages
-                .Where(d => d.Term.term1 == term)
-                .Count();
+            //var tf = GetPageFromURL(prettyURL).TermToPages
+            //    .Where(d => d.Term.term1 == term)
+            //    .Count();
 
-            return tf;
+            var pageID = GetPageFromURL(prettyURL);
+            var tf = dbCon.TermToPages.Where(tp => tp.pageID == pageID.id).Select(tp => tp.count).First();
+
+            return (int)tf;
         }
 
         public int DocumentFrequency(string term)
