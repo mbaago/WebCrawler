@@ -174,5 +174,14 @@ namespace PetersWeb
 
             return df;
         }
+
+        public IEnumerable<string> GetAllTerms()
+        {
+            var terms = dbCon.Terms
+                .Select(t => t.term1)
+                .Distinct();
+
+            return terms;
+        }
     }
 }

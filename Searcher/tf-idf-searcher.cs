@@ -60,6 +60,19 @@ namespace Peter
             Dictionary<string, double> Scores = new Dictionary<string, double>();
             Dictionary<string, double> Length = new Dictionary<string, double>();
 
+            //var allTerms = Database.GetAllTerms();
+            //foreach (var doc in Database.GetAllPages())
+            //{
+            //    int sum = 0;
+            //    foreach (var term in allTerms)
+            //    {
+            //        int count = Database.TermFrequencyInDocument(term, doc.url);
+            //        sum += count * count;
+            //    }
+
+            //    Length[doc.url] = Math.Sqrt(sum);
+            //}
+
             foreach (var doc in Database.GetAllPages())
             {
                 Length[doc.url] = 1;
