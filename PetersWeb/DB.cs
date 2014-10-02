@@ -114,6 +114,11 @@ namespace PetersWeb
         public IEnumerable<TermToPage> GetInvertedIndexForSingleToken(string token)
         {
             var term = dbCon.Terms.Where(t => t.term1 == token).FirstOrDefault();
+            if (term == null)
+            {
+                return Enumerable.Empty<TermToPage>();
+            }
+
             var pages = dbCon.TermToPages.Where(tp => tp.termID == term.id);
             return pages;
         }

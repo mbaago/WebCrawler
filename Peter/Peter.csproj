@@ -93,6 +93,10 @@
       <Project>{c4358e49-d677-40b4-b3a1-4121366244ac}</Project>
       <Name>PetersWeb</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Searcher\Searcher.csproj">
+      <Project>{b2bb5be5-d95b-487e-a879-d6c6408aa310}</Project>
+      <Name>Searcher</Name>
+    </ProjectReference>
     <ProjectReference Include="..\URLStuff\URLStuff.csproj">
       <Project>{914d0be5-6a56-44ed-aed5-aa512a546a39}</Project>
       <Name>URLStuff</Name>

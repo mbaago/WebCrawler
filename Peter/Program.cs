@@ -16,6 +16,7 @@ namespace Peter
         //static DBContextDataContext dbCon = new DBContextDataContext();
         static DB database = new DB();
         private static ConcurrentQueue<Tuple<PrettyURL, string, DateTime>> ToBeIndexedQueue = new ConcurrentQueue<Tuple<PrettyURL, string, DateTime>>();
+        private static tf_idf_searcher Searcher = new tf_idf_searcher();
 
         private static int numFrontQueues = 10;
         private static int numBackQueues = 3;
@@ -31,7 +32,15 @@ namespace Peter
             //IndexOnPagesInDB_IAMLAZY();
             //NewMethod();
 
-            DoSomeSearching();
+            //DoSomeSearching();
+
+
+            var result = Searcher.SearchAndGetURLs("software");
+
+            foreach (var res in result)
+            {
+                Console.WriteLine(res);
+            }
 
             Console.WriteLine("Completed");
             Console.ReadKey();
@@ -66,6 +75,9 @@ namespace Peter
         {
             Console.WriteLine("Search string:");
             string input = Console.ReadLine();
+
+            var result = Searcher.SearchAndGetURLs(input);
+
             Console.WriteLine(input);
         }
 

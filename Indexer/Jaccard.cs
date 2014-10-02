@@ -12,7 +12,7 @@ namespace Peter
         {
             ShingleSize = shingleSize;
             HowCloseBeforeDuplicate = howCloseForDup;
-            SplitChars = splitChars;
+            SplitChars = splitChars ?? new char[0];
         }
 
         int ShingleSize { get; set; }
@@ -50,10 +50,9 @@ namespace Peter
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
-        public string[] getWordsInSentence(string s)
+        public IEnumerable<string> getWordsInSentence(string s)
         {
-            var words = s.Split(SplitChars, StringSplitOptions.RemoveEmptyEntries)
-                .ToArray();
+            var words = s.Split(SplitChars, StringSplitOptions.RemoveEmptyEntries);
             return words;
         }
 
