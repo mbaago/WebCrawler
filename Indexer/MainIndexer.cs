@@ -64,10 +64,7 @@ namespace Peter
                 watch.Restart();
                 doc.LoadHtml(site.Item2);
                 var content = ReadContentFromHTMLDoc(doc);
-                var tokenized = Tokenizer(content);
-                var stopWordsRemoved = StopWordRemover(tokenized);
-                var caseFolded = CaseFolder(stopWordsRemoved);
-                var stemmed = Stemmer(caseFolded);
+                var stemmed = DoStuffOnInputString(content);
 
                 sb.Append(", Stem: " + (int)watch.Elapsed.TotalMilliseconds);
                 watch.Restart();
@@ -95,6 +92,15 @@ namespace Peter
 
                 Debug.WriteLine(sb.ToString(), INDEXER);
             }
+        }
+
+        public IEnumerable<string> DoStuffOnInputString(string input)
+        {
+            var tokenized = Tokenizer(input);
+            var stopWordsRemoved = StopWordRemover(tokenized);
+            var caseFolded = CaseFolder(stopWordsRemoved);
+            var stemmed = Stemmer(caseFolded);
+            return stemmed;
         }
 
         private bool IsSiteContentCloseToExistingSite(IEnumerable<int> newShingles)

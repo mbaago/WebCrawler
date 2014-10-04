@@ -27,30 +27,30 @@ namespace Peter
 
         static void Main(string[] args)
         {
-            //DoSomeCrawlingAndIndexing(500);
-            //IndexOnPagesInDB_IAMLAZY();
-            //NewMethod();
+            char s = default(char);
+            bool cont = true;
 
-            //DoSomeSearching();
-
-
-            var result = Searcher.SearchAndGetURLs("apple aau");
-            foreach (var res in result)
+            while (cont)
             {
-                Console.WriteLine(res + " (" + res.Value + ")");
+                Console.WriteLine("Press s to search, c to crawl ~100 sites (broken after first time, w/e), anything else to exit");
+                s = Console.ReadKey().KeyChar;
+
+                switch (s)
+                {
+                    case 's':
+                        DoSomeSearching();
+                        break;
+                    case 'c':
+                        DoSomeCrawlingAndIndexing(100);
+                        break;
+                    default:
+                        cont = false;
+                        break;
+                }
             }
 
             Console.WriteLine("Completed");
             Console.ReadKey();
-        }
-
-        private static void NewMethod()
-        {
-            var terms = database.GetInvertedIndexForSingleToken("og");
-            foreach (var url in terms)
-            {
-                Console.WriteLine(url.pageID + " (" + database.TokenCountInURL(url.Page.url, url.Term.term1) + "): " + url.Page.url);
-            }
         }
 
         private static void IndexOnPagesInDB_IAMLAZY()
@@ -71,12 +71,27 @@ namespace Peter
 
         private static void DoSomeSearching()
         {
-            Console.WriteLine("Search string:");
+            Console.WriteLine("\nSearch string:");
             string input = Console.ReadLine();
 
-            var result = Searcher.SearchAndGetURLs(input);
+            var x = new MainIndexer(null, null, null, null).DoStuffOnInputString(input);
+            input = string.Join(" ", x);
 
-            Console.WriteLine(input);
+            var result = Searcher.SearchAndGetURLs(input).Take(10);
+
+            if (result.Count() > 0)
+            {
+                foreach (var res in result)
+                {
+                    Console.WriteLine(res);
+                }
+            }
+            else
+            {
+                Console.WriteLine("No results");
+            }
+
+
         }
 
         private static void DoSomeCrawlingAndIndexing(int approxSites)
