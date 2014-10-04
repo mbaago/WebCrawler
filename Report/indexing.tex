@@ -23,7 +23,7 @@ Using the list of stop words from \url{http://snowball.tartarus.org/algorithms/d
 We make all the tokens lowercase.
 
 \subsection{Stemming}
-We do nothing for now, because danish, but might use \url{http://snowball.tartarus.org/algorithms/danish/stemmer.html}
+We do not stem the tokens, but a possible algorithm to use would be \url{http://snowball.tartarus.org/algorithms/danish/stemmer.html}
 
 \subsection{Adding the site to the index}
 This is straightforward, by going through the sorted collection of tokens from the URL, and adding the URL and number of times the token appears on the site, to the tokens posting list.
