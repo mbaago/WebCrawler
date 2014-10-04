@@ -1,2 +1,43 @@
 \section{Ranking (content-based)}
-To rank our result 
+To rank our result we use term frequency(TF) and the inverse document frequency(IDF).
+
+\subsection{Term Frequency} This is the number of times a given term is found on a page. To avoid making page where a term is used a lot more important the pages where it is less frequent, the TF is normalized, this is done by as follows
+\\
+\\
+$log_{10}(\text{the number of times the term is found in the document})$
+\\
+\\
+ The use of $log_{10}$ as opposed to other ways of normalization, is to give pages with a high term count a slightly better score the those with lower.
+
+\subsection{Inverse Document Frequency}
+The IDF is calculated as follows
+\\
+\\
+$\frac{ \text{number of pages in the database}}{ \text{the number of pages with the term in them}}$
+\\
+\\
+Again to help reduce the impact of terms used on many pages the value use is\\
+\\
+\\
+$log_{10}(\frac{ \text{number of pages in the database}}{ \text{the number of pages with the term in them}})$
+\\
+\\
+
+\subsection{TF*IDF}
+The final score for a page is calculated as follows.
+\\
+\\
+\begin{tabular}{c|c}
+$ \sum_{t\in q\cap p} TF \times IDF_{q,p}$ &$q = \lbrace \text{ query terms} \rbrace$\\ 
+&$p = \lbrace \text{ page terms} \rbrace$\\
+\end{tabular} 
+
+\subsection{Cosine Similarity}
+A further improvement to this approach would be to calculate the cosine similarity. The cosine similarity between a query and a page is done as follows\\
+\\ 
+
+$ \frac{query \cdot page}{\parallel query \parallel \times \parallel page \parallel}$ 
+
+
+
+ 
