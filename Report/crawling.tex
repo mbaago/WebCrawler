@@ -1,5 +1,5 @@
 \section{Crawling}
-Our crawler is implemented in several classes, and is almost able to be multithreaded (it is only spawned in a single thread, as changes would be necessary to be polite otherwise):
+Our crawler is implemented in several classes, and is almost able to be properly multithreaded (if multiple instances were started, it would not be polite).
 \begin{itemize}
 	\item \texttt{Crawler}
 	\item \texttt{Mercator}
@@ -12,7 +12,7 @@ This class gets an URL to crawl from the mercator class and downloads it. The UR
 \subsection{Mercator}
 This class is the implementation of the mercator scheme. It keeps a list of all URLs that have, at some point, been in a frontqueue, and only adds new URLs to a frontqueue if they are not in that list. It is implemented to use a custom number of front and back queues: we use 10 and 3, and use randomness to determine where new URLs go.
 
-When the crawler asks for a page, it returns the oldest domain from a backqueue, sleeping if necessary, thereby implementing politeness. The mercator only returns URLs allowed from a domains robots.txt.
+When the crawler asks for a page, it returns a site belonging to domain from a the oldest backqueue, sleeping if necessary, thereby implementing politeness. The mercator only returns URLs allowed from a domains robots.txt.
 
 \subsection{RobotStuff}
 This class handles robots.txt. When it is asked if it is allowed to visit and URL, it first determines if the robots.txt for that domain is not downloaded or too old. If so, the file is downloaded. It then determines if the URL may be visited.

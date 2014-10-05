@@ -1,7 +1,7 @@
 \section{Indexing}
-Since we believe the focus of this project is not on parsing HTML, we have chosen to use HtmlAgilityPack (\url{http://www.nuget.org/packages/HtmlAgilityPack}), to save time. We then extract only headers and paragraphs from the downloaded HTML, again this is done to save time, but it would be a place where one could optimize the crawler in the future.\\
+Since we believe the focus of this project is not on parsing HTML, we have chosen to use HtmlAgilityPack (\url{http://www.nuget.org/packages/HtmlAgilityPack}), to save time. We extract only headers and paragraphs from the downloaded HTML, again this is done to save time, but it would be a place where one could optimize the crawler in the future.\\
 
-After the HTML have been parsed it is checked  to determine if there is a near-duplicate (90\%) already in the database, this is done using Jaccard similarity method with a shingle size of four words, if there already is a near-duplicate in the database, the process stops and it goes on to the next page. Otherwise, we apply the following steps:
+After the HTML have been parsed it is checked  to determine if there is a near-duplicate (90\%) already in the database, this is done using the Jaccard similarity method with a shingle size of four words, if there already is a near-duplicate in the database, the process stops and it goes on to the next page. Otherwise, we apply the following steps:
 
 \begin{itemize}
     \item Process the text and try to make it danish.
@@ -13,7 +13,7 @@ After the HTML have been parsed it is checked  to determine if there is a near-d
 \end{itemize}
 
 \subsection{Making the content danish}
-As some characters are not represented properly when downloaded, we handle some instances of e.g. æ, ø, and å.
+As some characters are not represented properly when downloaded, e.g. å as \texttt{\&aring;}, we convert it to the proper character.
 
 \subsection{Tokenization}
 In this step we remove the unwanted characters shown in \Cref{sec:rem-chars}, and split the remainder on spaces, to get a collection of tokens.
