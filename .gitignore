@@ -17,7 +17,6 @@
 /PetersWeb/Properties/Settings.Designer.cs
 *.aux
 *.log
-*.pdf
 *.gz
 /Searcher/bin/Debug
 /Searcher/obj/Debug
