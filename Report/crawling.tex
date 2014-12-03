@@ -7,7 +7,9 @@ Our crawler is implemented in several classes, and is almost able to be properly
 \end{itemize}
 
 \subsection{Crawler}
-This class gets an URL to crawl from the mercator class and downloads it. The URL and downloaded content are enqueued for the indexer. A not-very-scientific test showed that downloading and enqueuing 500 .dk, starting with the seed (\url{newz.dk}, \url{aau.dk}, \url{politikken.dk}) sites took 4 minutes and 33 seconds on a 20/3 Mbit Stofa connection.
+This class gets an URL to crawl from the mercator class and downloads it. 
+The URL is normalized using the \texttt{Uri} class, and this and the downloaded content are enqueued for the indexer.
+A not-very-scientific test showed that downloading and enqueuing 500 .dk, starting with the seed (\url{newz.dk}, \url{aau.dk}, \url{politikken.dk}) sites took 4 minutes and 33 seconds on a 20/3 Mbit Stofa connection.
 
 \subsection{Mercator}
 This class is the implementation of the mercator scheme. It keeps a list of all URLs that have, at some point, been in a frontqueue, and only adds new URLs to a frontqueue if they are not in that list. It is implemented to use a custom number of front and back queues: we use 10 and 3, and use randomness to determine where new URLs go. Another possibility would be to give certain sites (e.g. forums) higher priority, to get the new content more often.
